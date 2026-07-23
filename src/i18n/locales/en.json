@@ -1,0 +1,70 @@
+{
+  "common": {
+    "appName": "Algebaran",
+    "tagline": "Chart the stars with algebra",
+    "loading": "Charting the stars…",
+    "continue": "Continue",
+    "back": "Back",
+    "close": "Close",
+    "cancel": "Cancel"
+  },
+  "tabs": {
+    "home": "Home",
+    "shop": "Shop",
+    "profile": "Profile"
+  },
+  "home": {
+    "greeting": "Welcome back, explorer",
+    "mapTitle": "Star Map",
+    "start": "Start",
+    "review": "Review",
+    "locked": "Locked"
+  },
+  "lesson": {
+    "reward": "Reward",
+    "needHint": "Need a hint?",
+    "check": "Check answer",
+    "completeDemo": "Complete lesson (demo)",
+    "completed": "Lesson complete!",
+    "earned": "+{{stardust}} Stardust · +{{xp}} XP",
+    "replay": "Reviewed — nice refresher!",
+    "finish": "Finish",
+    "typeHere": "Tap the keys to build your equation",
+    "correct": "Correct!",
+    "correctAnswerIs": "Answer: {{answer}}",
+    "keyLocked": "🔒 Unlock this key in the Shop",
+    "comingSoon": "The interactive problems for this lesson arrive in a later build."
+  },
+  "hints": {
+    "title": "Hints",
+    "empty": "No hints yet for this lesson.",
+    "placeholder": "Hints will guide you step by step once lesson content is authored."
+  },
+  "profile": {
+    "title": "Profile",
+    "level": "Level {{level}}",
+    "stardust": "Stardust",
+    "multiplier": "Income ×{{value}}",
+    "streak_one": "{{count}}-day streak",
+    "streak_other": "{{count}}-day streak",
+    "streakNone": "Start a streak today",
+    "lessonsDone": "{{count}} lessons complete",
+    "viewAchievements": "Achievements",
+    "language": "Language"
+  },
+  "shop": {
+    "title": "Shop",
+    "balance": "You have {{stardust}} Stardust",
+    "buy": "Buy",
+    "owned": "Owned",
+    "equip": "Equip",
+    "equipped": "Equipped",
+    "cantAfford": "Not enough Stardust"
+  },
+  "achievements": {
+    "title": "Achievements",
+    "unlocked": "Unlocked",
+    "locked": "Locked",
+    "progress": "{{unlocked}} of {{total}} unlocked"
+  }
+}
