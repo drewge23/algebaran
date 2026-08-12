@@ -27,7 +27,10 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      # `npm install`, not `npm ci`: the lockfile is generated on macOS and npm
+      # omits other platforms' optional binaries (lightningcss/rolldown), which
+      # breaks the Linux build. `install` re-resolves them for this platform.
+      - run: npm install --no-audit --no-fund
 
       # Gate the deploy on the same checks used locally.
       - run: npm run typecheck
