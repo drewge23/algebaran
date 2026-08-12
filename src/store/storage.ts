@@ -1,9 +1,8 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createJSONStorage } from 'zustand/middleware';
 
 /**
- * Shared persistence backend for all Zustand stores. AsyncStorage works in Expo
- * Go with no native build; if write throughput ever becomes a concern we can
- * swap this single adapter for MMKV behind a dev build.
+ * Shared persistence backend for all stores. `localStorage` is synchronous, so
+ * rehydration finishes before first paint and no loading gate is needed — the
+ * app opens straight onto saved progress.
  */
-export const persistStorage = createJSONStorage(() => AsyncStorage);
+export const persistStorage = createJSONStorage(() => localStorage);

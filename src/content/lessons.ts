@@ -31,7 +31,7 @@ export const LESSONS: Lesson[] = [
     title: 'Parabolas everywhere',
     order: 1,
     kind: 'concept',
-    rewardStardust: 20,
+    rewardPi: 20,
     rewardXp: 30,
   },
   {
@@ -40,7 +40,7 @@ export const LESSONS: Lesson[] = [
     title: 'From a story to symbols',
     order: 2,
     kind: 'input-equation',
-    rewardStardust: 25,
+    rewardPi: 25,
     rewardXp: 40,
   },
   {
@@ -49,7 +49,7 @@ export const LESSONS: Lesson[] = [
     title: 'Meet a, b and c',
     order: 3,
     kind: 'multiple-choice',
-    rewardStardust: 25,
+    rewardPi: 25,
     rewardXp: 40,
   },
   {
@@ -58,7 +58,7 @@ export const LESSONS: Lesson[] = [
     title: 'Isolating x²',
     order: 4,
     kind: 'input-equation',
-    rewardStardust: 30,
+    rewardPi: 30,
     rewardXp: 50,
   },
   {
@@ -67,7 +67,7 @@ export const LESSONS: Lesson[] = [
     title: 'Factor out x',
     order: 5,
     kind: 'input-equation',
-    rewardStardust: 30,
+    rewardPi: 30,
     rewardXp: 50,
   },
   {
@@ -76,7 +76,7 @@ export const LESSONS: Lesson[] = [
     title: 'The discriminant',
     order: 6,
     kind: 'input-equation',
-    rewardStardust: 40,
+    rewardPi: 40,
     rewardXp: 70,
   },
   {
@@ -85,7 +85,7 @@ export const LESSONS: Lesson[] = [
     title: 'Sum and product of roots',
     order: 7,
     kind: 'multiple-choice',
-    rewardStardust: 40,
+    rewardPi: 40,
     rewardXp: 70,
   },
   {
@@ -94,7 +94,7 @@ export const LESSONS: Lesson[] = [
     title: 'Meteor shower',
     order: 8,
     kind: 'timed',
-    rewardStardust: 60,
+    rewardPi: 60,
     rewardXp: 100,
   },
 ];

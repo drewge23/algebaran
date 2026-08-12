@@ -6,34 +6,49 @@
     "continue": "Continue",
     "back": "Back",
     "close": "Close",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "currency": "π"
   },
   "tabs": {
-    "home": "Home",
-    "shop": "Shop",
-    "profile": "Profile"
+    "lessons": "Lessons",
+    "collect": "Collect",
+    "profile": "Profile",
+    "awards": "Awards"
   },
   "home": {
-    "greeting": "Welcome back, explorer",
-    "mapTitle": "Star Map",
+    "eyebrow": "Quadratic equations",
+    "section": "Section 1",
+    "greeting": "Ah! You're here. Excellent timing.",
+    "mapTitle": "Quadratic Equations",
+    "lessonCount": "{{count}} lessons",
+    "progress": "{{done}} / {{total}} lessons completed",
+    "theory": "Theory Library",
+    "beatTheClock": "Beat the Clock",
     "start": "Start",
     "review": "Review",
     "locked": "Locked"
   },
   "lesson": {
+    "counter": "Lesson {{index}} of {{total}}",
+    "solve": "Solve",
+    "learn": "Learn",
     "reward": "Reward",
     "needHint": "Need a hint?",
+    "theory": "Theory",
     "check": "Check answer",
     "completeDemo": "Complete lesson (demo)",
     "completed": "Lesson complete!",
-    "earned": "+{{stardust}} Stardust · +{{xp}} XP",
+    "earned": "+{{pi}} π · +{{xp}} XP",
     "replay": "Reviewed — nice refresher!",
     "finish": "Finish",
-    "typeHere": "Tap the keys to build your equation",
+    "typeHere": "Tap the keys to build your answer",
     "correct": "Correct!",
     "correctAnswerIs": "Answer: {{answer}}",
-    "keyLocked": "🔒 Unlock this key in the Shop",
-    "comingSoon": "The interactive problems for this lesson arrive in a later build."
+    "keyLocked": "Unlock this key in Collect",
+    "comingSoon": "The interactive problems for this lesson arrive in a later build.",
+    "encourageStart": "Take your time. Precision beats speed.",
+    "encourageRight": "Precisely! I knew you had it.",
+    "encourageWrong": "Don't worry. I've made considerably worse mistakes."
   },
   "hints": {
     "title": "Hints",
@@ -43,23 +58,28 @@
   "profile": {
     "title": "Profile",
     "level": "Level {{level}}",
-    "stardust": "Stardust",
-    "multiplier": "Income ×{{value}}",
-    "streak_one": "{{count}}-day streak",
-    "streak_other": "{{count}}-day streak",
-    "streakNone": "Start a streak today",
-    "lessonsDone": "{{count}} lessons complete",
+    "pi": "Balance",
+    "multiplier": "Income",
+    "streak": "Streak",
+    "streakDays": "{{count}} days",
+    "streakNone": "Start today",
+    "lessonsDone": "Lessons",
+    "xp": "XP",
     "viewAchievements": "Achievements",
-    "language": "Language"
+    "language": "Language",
+    "nextLevel": "{{percent}}% to level {{level}}"
   },
   "shop": {
-    "title": "Shop",
-    "balance": "You have {{stardust}} Stardust",
+    "title": "Collect",
+    "subtitle": "Spend π on companions, keys and luck.",
+    "balance": "You have {{pi}} π",
     "buy": "Buy",
     "owned": "Owned",
     "equip": "Equip",
     "equipped": "Equipped",
-    "cantAfford": "Not enough Stardust"
+    "cantAfford": "Not enough π",
+    "incomeBonus": "+{{value}}× income",
+    "unlocked": "Unlocked!"
   },
   "achievements": {
     "title": "Achievements",

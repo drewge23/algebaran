@@ -1,53 +1,66 @@
 # Algebaran 🪐
 
-A gamified mobile app that teaches **quadratic equations**. Built with Expo +
-React Native + TypeScript. Cosmic theme, soft-currency economy (**Stardust**),
-streaks, achievements, a shop, and a star-map curriculum.
+A gamified web app that teaches **quadratic equations** — installable to your
+phone's home screen, works offline. Cosmic theme, soft currency (**π**), streaks,
+achievements, a shop with unlockable keyboard keys, and a star-map curriculum
+guided by Professor **Professorson**.
 
-## Getting started
+## Run it locally
 
 ```bash
-yarn install
-yarn start
+npm install
+npm run dev
 ```
 
-Then open the app on your iPhone:
+Then open the printed URL. `npm run dev` also prints a **Network** address — open
+that on your phone (same Wi-Fi) to try it there.
 
-1. Install **Expo Go** from the App Store.
-2. Scan the QR code printed by `yarn start` with the Camera app.
+## Install on a phone
 
-No Xcode or Android Studio required for development.
+1. Open the deployed URL in the phone's browser.
+2. **iOS Safari**: Share → _Add to Home Screen_. **Android Chrome**: menu → _Install app_.
+
+It then launches full-screen like a native app and works offline.
 
 ## Scripts
 
-| Command | Description |
-| --- | --- |
-| `yarn start` | Start the Expo dev server (QR for Expo Go) |
-| `yarn ios` / `yarn android` | Open in a simulator/emulator (needs Xcode/Android Studio) |
-| `yarn test` | Run the Jest test suite |
-| `yarn lint` | ESLint |
-| `yarn typecheck` | `tsc --noEmit` |
-| `yarn format` | Prettier write |
-| `yarn build` | Export a production JS bundle (`expo export`) |
+| Command             | Description                         |
+| ------------------- | ----------------------------------- |
+| `npm run dev`       | Dev server with hot reload          |
+| `npm run build`     | Production build (+ service worker) |
+| `npm run preview`   | Serve the production build locally  |
+| `npm test`          | Unit tests (Vitest)                 |
+| `npm run lint`      | ESLint                              |
+| `npm run typecheck` | TypeScript, no emit                 |
+| `npm run format`    | Prettier                            |
+
+Deploying under a subpath (e.g. GitHub Pages project site):
+
+```bash
+VITE_BASE=/algebaran/ npm run build
+```
 
 ## Project structure
 
 ```
 src/
-  app/            Expo Router routes (loading → tabs; lesson, hints, achievements)
-  store/          Zustand stores (player economy, lesson progress, hydration)
-  lib/            Pure, unit-tested logic (economy, streak dates, random)
-  content/        Data catalogues (lessons, shop, achievements)
-  components/     Screen, buttons, stat pills, icons
-  constants/      Theme (cosmic colors + gradients)
-  i18n/           i18next setup + en/ru locale files
+  routes/       Screens: star map, lesson, collect, profile, achievements
+  components/   LessonPlayer, EquationKeyboard, MathText, Mascot, PiPill, BottomNav
+  store/        Zustand stores (player economy, lesson progress) → localStorage
+  lib/          Pure, unit-tested logic (economy, streaks, answer checking)
+  content/      Lesson catalogue + authored lesson steps, shop, achievements
+  styles/       Design system (CSS tokens + components)
+  assets/       Professorson mascot art
 ```
 
-See [CLAUDE.md](CLAUDE.md) for architecture notes and conventions.
+See [CLAUDE.md](CLAUDE.md) for architecture notes, conventions, and how to author
+a new lesson.
 
 ## Status
 
-Scaffold complete: navigation, theming, i18n, persistence, and the full
-gamification economy (Stardust, XP/levels, streaks, shop, achievements) are
-wired. Lesson screens are skeletons that already run the reward loop; the
-interactive quadratic-equation content is the next phase.
+Playable prototype. Navigation, theming, i18n (EN/RU), persistence, and the full
+gamification economy are wired. The lesson engine supports explanation cards,
+multiple choice, and typed equations via a custom on-screen keyboard —
+**6 of 8 curriculum sections** have authored content.
+
+Next: the discriminant lesson, and the timed "Beat the Clock" bonus round.

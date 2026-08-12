@@ -34,7 +34,7 @@ export interface Lesson {
   order: number;
   kind: LessonKind;
   /** Base rewards, before the income multiplier is applied. */
-  rewardStardust: number;
+  rewardPi: number;
   rewardXp: number;
 }
 
@@ -77,7 +77,7 @@ export interface ShopItem {
   description: string;
   glyph: string;
   cost: number;
-  /** How much this item adds to the Stardust income multiplier. */
+  /** How much this item adds to the π income multiplier. */
   multiplier: number;
   /** avatar/collectable are cosmetic; consumable is one-shot; key unlocks a keyboard key. */
   kind: 'avatar' | 'collectable' | 'consumable' | 'key';

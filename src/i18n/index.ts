@@ -1,5 +1,3 @@
-/* eslint-disable import/no-named-as-default-member -- i18next's default export intentionally exposes .use()/.changeLanguage() */
-import { getLocales } from 'expo-localization';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
@@ -15,14 +13,23 @@ export type AppLanguage = keyof typeof resources;
 
 export const SUPPORTED_LANGUAGES: AppLanguage[] = ['en', 'ru'];
 
+const STORAGE_KEY = 'algebaran-language';
+
+function isSupported(code: string | undefined | null): code is AppLanguage {
+  return !!code && code in resources;
+}
+
 /**
- * English-first, i18n-ready: the UI defaults to English but respects a device
- * set to a language we support (currently Russian). All user-facing chrome is
- * routed through these resource files so adding a language is drop-in.
+ * English-first, i18n-ready: a saved choice wins, otherwise we follow the
+ * browser's language when we support it. The choice is persisted here (not only
+ * in the player store) so the correct language is available at init time,
+ * before React renders.
  */
 function initialLanguage(): AppLanguage {
-  const device = getLocales()[0]?.languageCode;
-  return device && device in resources ? (device as AppLanguage) : 'en';
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (isSupported(saved)) return saved;
+  const browser = navigator.language?.split('-')[0];
+  return isSupported(browser) ? browser : 'en';
 }
 
 if (!i18n.isInitialized) {
@@ -32,12 +39,15 @@ if (!i18n.isInitialized) {
     fallbackLng: 'en',
     interpolation: { escapeValue: false },
     returnNull: false,
-    compatibilityJSON: 'v4',
   });
 }
 
 export function setLanguage(lang: AppLanguage): Promise<unknown> {
+  localStorage.setItem(STORAGE_KEY, lang);
+  document.documentElement.lang = lang;
   return i18n.changeLanguage(lang);
 }
+
+document.documentElement.lang = i18n.language;
 
 export default i18n;

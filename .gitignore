@@ -3,23 +3,13 @@
 # dependencies
 node_modules/
 
-# Expo
-.expo/
+# build output
 dist/
-web-build/
-expo-env.d.ts
+dev-dist/
 
-# Native
-.kotlin/
-*.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
-
-# Metro
-.metro-health-check*
+# vite / typescript caches
+*.tsbuildinfo
+.vite/
 
 # debug
 npm-debug.*
@@ -32,15 +22,6 @@ yarn-error.*
 
 # local env files
 .env*.local
-
-# typescript
-*.tsbuildinfo
-
-example
-
-# generated native folders
-/ios
-/android
 
 # local Claude Code settings (permissions etc.)
 .claude/settings.local.json

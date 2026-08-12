@@ -2,8 +2,8 @@ import type { ShopItem } from '@/types/content';
 
 /**
  * Placeholder shop catalogue. Everything is bought with soft currency
- * (Stardust) earned in-app — no real-money purchases in v1. Cosmetic avatars
- * and collectables also add to the Stardust income multiplier.
+ * (π) earned in-app — no real-money purchases in v1. Cosmetic avatars
+ * and collectables also add to the π income multiplier.
  */
 export const SHOP_ITEMS: ShopItem[] = [
   {
@@ -36,7 +36,7 @@ export const SHOP_ITEMS: ShopItem[] = [
   {
     id: 'consumable-fortune-cookie',
     name: 'Fortune Cookie',
-    description: 'Crack it open for a random Stardust reward.',
+    description: 'Crack it open for a random π reward.',
     glyph: '🥠',
     cost: 50,
     multiplier: 0,
@@ -61,6 +61,26 @@ export const SHOP_ITEMS: ShopItem[] = [
     multiplier: 0,
     kind: 'key',
     keyId: 'pm',
+  },
+  {
+    id: 'key-divide',
+    name: 'Divide Key',
+    description: 'Unlock the ÷ key on the equation keyboard.',
+    glyph: '÷',
+    cost: 120,
+    multiplier: 0,
+    kind: 'key',
+    keyId: 'divide',
+  },
+  {
+    id: 'key-y',
+    name: 'Second Unknown',
+    description: 'Unlock the y key — for when one unknown is not enough.',
+    glyph: 'y',
+    cost: 200,
+    multiplier: 0,
+    kind: 'key',
+    keyId: 'var-y',
   },
 ];
 

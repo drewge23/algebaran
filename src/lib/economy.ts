@@ -1,6 +1,6 @@
 /**
  * Pure economy math for Algebaran's gamification loop: XP → level curve, and
- * the Stardust income multiplier granted by owned collectables/skins.
+ * the π income multiplier granted by owned collectables/skins.
  *
  * Design intent (see the plan): "all collectables and skins add a multiplier to
  * the user's income". We model that as a base of 1.0 plus the sum of each owned

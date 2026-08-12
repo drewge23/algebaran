@@ -5,7 +5,7 @@ export interface AchievementStats {
   lessonsCompleted: number;
   streakCount: number;
   level: number;
-  stardust: number;
+  pi: number;
 }
 
 export interface AchievementDef extends Achievement {
@@ -44,8 +44,8 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   {
     id: 'rich-as-a-star',
     name: 'Rich as a Star',
-    description: 'Hold 500 Stardust at once.',
+    description: 'Hold 500 π at once.',
     glyph: '💫',
-    isUnlocked: (s) => s.stardust >= 500,
+    isUnlocked: (s) => s.pi >= 500,
   },
 ];

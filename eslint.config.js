@@ -1,12 +1,27 @@
-// https://docs.expo.dev/guides/using-eslint/
-const { defineConfig } = require('eslint/config');
-const expoConfig = require('eslint-config-expo/flat');
-const prettier = require('eslint-config-prettier');
+import js from '@eslint/js';
+import prettier from 'eslint-config-prettier';
+import reactHooks from 'eslint-plugin-react-hooks';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
-module.exports = defineConfig([
-  expoConfig,
+export default tseslint.config(
+  { ignores: ['dist', 'dev-dist', 'node_modules'] },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  // v7 still ships the legacy array form under `configs.recommended*`; the
+  // flat-config object lives under `configs.flat`.
+  reactHooks.configs.flat.recommended,
   prettier,
   {
-    ignores: ['dist/*', '.expo/*', 'node_modules/*'],
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 2023,
+      globals: globals.browser,
+    },
   },
-]);
+  {
+    // Vite config runs in Node, not the browser.
+    files: ['vite.config.ts'],
+    languageOptions: { globals: globals.node },
+  },
+);

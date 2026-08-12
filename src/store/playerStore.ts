@@ -10,8 +10,8 @@ import { persistStorage } from './storage';
 export const DEFAULT_AVATAR_ID = 'starter-star';
 
 interface PlayerData {
-  /** Soft currency. */
-  stardust: number;
+  /** Soft currency, displayed as π. */
+  pi: number;
   /** Total experience points; level is derived from this. */
   xp: number;
   streakCount: number;
@@ -22,14 +22,16 @@ interface PlayerData {
   equippedAvatarId: string;
   /** Unlockable keyboard keys the player has earned/bought. */
   unlockedKeyIds: string[];
+  /** Manual language override; `null` means "follow the browser". */
+  language: string | null;
 }
 
 interface PlayerActions {
-  /** Awards `base` Stardust after applying the income multiplier. Returns the amount actually granted. */
-  earnStardust: (base: number) => number;
-  addStardust: (amount: number) => void;
-  /** Spends Stardust if affordable; returns whether the spend succeeded. */
-  spendStardust: (amount: number) => boolean;
+  /** Awards `base` π after applying the income multiplier. Returns the amount granted. */
+  earnPi: (base: number) => number;
+  addPi: (amount: number) => void;
+  /** Spends π if affordable; returns whether the spend succeeded. */
+  spendPi: (amount: number) => boolean;
   addXp: (amount: number) => void;
   /** Records that the player was active (drives the daily streak). */
   registerActivity: (today?: string) => void;
@@ -37,24 +39,26 @@ interface PlayerActions {
   purchaseItem: (id: string) => boolean;
   equipAvatar: (id: string) => void;
   unlockKey: (id: string) => void;
+  setLanguage: (lang: string) => void;
   reset: () => void;
 }
 
 export type PlayerState = PlayerData & PlayerActions;
 
 const INITIAL: PlayerData = {
-  stardust: 0,
+  pi: 0,
   xp: 0,
   streakCount: 0,
   lastActiveISODate: null,
   ownedItemIds: [],
   equippedAvatarId: DEFAULT_AVATAR_ID,
   unlockedKeyIds: [],
+  language: null,
 };
 
-// --- Selectors (compute derived values from the raw state) ---
+// --- Selectors (derive values from raw state) ---
 
-/** Total Stardust income multiplier from owned collectables/skins. */
+/** Total π income multiplier from owned collectables/skins. */
 export const selectMultiplier = (s: PlayerState): number =>
   computeMultiplier(s.ownedItemIds.map((id) => getShopItem(id)?.multiplier ?? 0));
 
@@ -66,19 +70,19 @@ export const usePlayerStore = create<PlayerState>()(
     (set, get) => ({
       ...INITIAL,
 
-      earnStardust: (base) => {
+      earnPi: (base) => {
         const state = get();
         const awarded = applyMultiplier(base, selectMultiplier(state));
-        set({ stardust: state.stardust + awarded });
+        set({ pi: state.pi + awarded });
         return awarded;
       },
 
-      addStardust: (amount) => set((s) => ({ stardust: s.stardust + amount })),
+      addPi: (amount) => set((s) => ({ pi: s.pi + amount })),
 
-      spendStardust: (amount) => {
-        const { stardust } = get();
-        if (stardust < amount) return false;
-        set({ stardust: stardust - amount });
+      spendPi: (amount) => {
+        const { pi } = get();
+        if (pi < amount) return false;
+        set({ pi: pi - amount });
         return true;
       },
 
@@ -98,10 +102,10 @@ export const usePlayerStore = create<PlayerState>()(
         const item = getShopItem(id);
         if (!item) return false;
         const state = get();
-        if (state.stardust < item.cost) return false;
+        if (state.pi < item.cost) return false;
         if (item.kind !== 'consumable' && state.ownedItemIds.includes(id)) return false;
         set({
-          stardust: state.stardust - item.cost,
+          pi: state.pi - item.cost,
           ownedItemIds:
             item.kind === 'consumable' ? state.ownedItemIds : [...state.ownedItemIds, id],
         });
@@ -115,21 +119,36 @@ export const usePlayerStore = create<PlayerState>()(
           s.unlockedKeyIds.includes(id) ? s : { unlockedKeyIds: [...s.unlockedKeyIds, id] },
         ),
 
+      setLanguage: (lang) => set({ language: lang }),
+
       reset: () => set({ ...INITIAL }),
     }),
     {
       name: 'algebaran-player',
-      version: 1,
+      version: 2,
       storage: persistStorage,
       partialize: (s): PlayerData => ({
-        stardust: s.stardust,
+        pi: s.pi,
         xp: s.xp,
         streakCount: s.streakCount,
         lastActiveISODate: s.lastActiveISODate,
         ownedItemIds: s.ownedItemIds,
         equippedAvatarId: s.equippedAvatarId,
         unlockedKeyIds: s.unlockedKeyIds,
+        language: s.language,
       }),
+      /** v1 (the Expo build) called the currency `stardust`. */
+      migrate: (persisted, version) => {
+        if (version < 2 && persisted && typeof persisted === 'object') {
+          const old = persisted as Record<string, unknown>;
+          return {
+            ...(persisted as object),
+            pi: typeof old.stardust === 'number' ? old.stardust : 0,
+            language: null,
+          } as PlayerData;
+        }
+        return persisted as PlayerData;
+      },
     },
   ),
 );

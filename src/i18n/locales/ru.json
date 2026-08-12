@@ -6,34 +6,49 @@
     "continue": "Продолжить",
     "back": "Назад",
     "close": "Закрыть",
-    "cancel": "Отмена"
+    "cancel": "Отмена",
+    "currency": "π"
   },
   "tabs": {
-    "home": "Главная",
-    "shop": "Магазин",
-    "profile": "Профиль"
+    "lessons": "Уроки",
+    "collect": "Коллекция",
+    "profile": "Профиль",
+    "awards": "Награды"
   },
   "home": {
-    "greeting": "С возвращением, исследователь",
-    "mapTitle": "Звёздная карта",
+    "eyebrow": "Квадратные уравнения",
+    "section": "Раздел 1",
+    "greeting": "А, вы здесь! Как раз вовремя.",
+    "mapTitle": "Квадратные уравнения",
+    "lessonCount": "{{count}} уроков",
+    "progress": "Пройдено {{done}} из {{total}} уроков",
+    "theory": "Библиотека теории",
+    "beatTheClock": "Успей за минуту",
     "start": "Начать",
     "review": "Повторить",
     "locked": "Закрыто"
   },
   "lesson": {
+    "counter": "Урок {{index}} из {{total}}",
+    "solve": "Решите",
+    "learn": "Теория",
     "reward": "Награда",
     "needHint": "Нужна подсказка?",
-    "check": "Проверить ответ",
+    "theory": "Теория",
+    "check": "Проверить",
     "completeDemo": "Завершить урок (демо)",
     "completed": "Урок пройден!",
-    "earned": "+{{stardust}} звёздной пыли · +{{xp}} опыта",
+    "earned": "+{{pi}} π · +{{xp}} опыта",
     "replay": "Повторение — отличная тренировка!",
     "finish": "Завершить",
-    "typeHere": "Нажимайте клавиши, чтобы составить уравнение",
+    "typeHere": "Нажимайте клавиши, чтобы составить ответ",
     "correct": "Верно!",
     "correctAnswerIs": "Ответ: {{answer}}",
-    "keyLocked": "🔒 Откройте эту клавишу в магазине",
-    "comingSoon": "Интерактивные задания для этого урока появятся в следующей версии."
+    "keyLocked": "Откройте эту клавишу в коллекции",
+    "comingSoon": "Интерактивные задания для этого урока появятся в следующей версии.",
+    "encourageStart": "Не спешите. Точность важнее скорости.",
+    "encourageRight": "Именно так! Я знал, что вы справитесь.",
+    "encourageWrong": "Не волнуйтесь. Я ошибался куда серьёзнее."
   },
   "hints": {
     "title": "Подсказки",
@@ -43,25 +58,28 @@
   "profile": {
     "title": "Профиль",
     "level": "Уровень {{level}}",
-    "stardust": "Звёздная пыль",
-    "multiplier": "Доход ×{{value}}",
-    "streak_one": "Серия {{count}} день",
-    "streak_few": "Серия {{count}} дня",
-    "streak_many": "Серия {{count}} дней",
-    "streak_other": "Серия {{count}} дней",
-    "streakNone": "Начните серию сегодня",
-    "lessonsDone": "Пройдено уроков: {{count}}",
+    "pi": "Баланс",
+    "multiplier": "Доход",
+    "streak": "Серия",
+    "streakDays": "{{count}} дн.",
+    "streakNone": "Начните сегодня",
+    "lessonsDone": "Уроки",
+    "xp": "Опыт",
     "viewAchievements": "Достижения",
-    "language": "Язык"
+    "language": "Язык",
+    "nextLevel": "{{percent}}% до уровня {{level}}"
   },
   "shop": {
-    "title": "Магазин",
-    "balance": "У вас {{stardust}} звёздной пыли",
+    "title": "Коллекция",
+    "subtitle": "Тратьте π на спутников, клавиши и удачу.",
+    "balance": "У вас {{pi}} π",
     "buy": "Купить",
     "owned": "Куплено",
     "equip": "Надеть",
     "equipped": "Надето",
-    "cantAfford": "Недостаточно звёздной пыли"
+    "cantAfford": "Недостаточно π",
+    "incomeBonus": "+{{value}}× к доходу",
+    "unlocked": "Открыто!"
   },
   "achievements": {
     "title": "Достижения",
