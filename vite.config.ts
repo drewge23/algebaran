@@ -12,6 +12,13 @@ const base = process.env.VITE_BASE ?? '/';
 
 export default defineConfig({
   base,
+  build: {
+    // Vite 8 minifies CSS with lightningcss, a native module whose per-platform
+    // binary is missing from a macOS-generated lockfile — which breaks the Linux
+    // CI build. esbuild is pure-JS-addressable here and loses ~nothing on a
+    // stylesheet this size.
+    cssMinify: 'esbuild',
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
