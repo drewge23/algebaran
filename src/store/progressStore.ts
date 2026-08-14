@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { ORDERED_LESSONS } from '@/content/lessons';
-import type { Lesson } from '@/types/content';
+import { spineOfWorld, worldIdOfLevel } from '@/content/curriculum';
+import type { Level } from '@/types/curriculum';
 
 import { persistStorage } from './storage';
 
@@ -81,17 +81,38 @@ export const useProgressStore = create<ProgressState>()(
 export const selectCompletedCount = (s: ProgressState): number => Object.keys(s.completed).length;
 
 /**
- * Unlock rule: a lesson is `completed` if recorded, `available` if it is the
- * first lesson or the previous lesson (in curriculum order) is completed,
+ * Unlock rule: a level is `completed` if recorded, `available` if it is the
+ * first level *of its world* or the previous one on that world's spine is done,
  * otherwise `locked`.
+ *
+ * Unlocking is per-world on purpose. Foundations is optional preparation, so
+ * requiring it before the quadratics course would wall off the actual subject
+ * behind ten levels of arithmetic.
  */
-export function statusForLesson(
+export function statusForLevel(
   completed: Record<string, LessonRecord>,
-  lesson: Lesson,
+  level: Level,
 ): LessonStatus {
-  if (completed[lesson.id]) return 'completed';
-  const idx = ORDERED_LESSONS.findIndex((l) => l.id === lesson.id);
+  if (completed[level.id]) return 'completed';
+  const worldId = worldIdOfLevel(level);
+  const spine = worldId ? spineOfWorld(worldId) : [];
+  const idx = spine.findIndex((l) => l.id === level.id);
   if (idx <= 0) return 'available';
-  const previous = ORDERED_LESSONS[idx - 1];
-  return completed[previous.id] ? 'available' : 'locked';
+  return completed[spine[idx - 1].id] ? 'available' : 'locked';
+}
+
+/** The next unfinished level within a world. */
+export function nextLevelInWorld(
+  completed: Record<string, LessonRecord>,
+  worldId: string,
+): Level | undefined {
+  return spineOfWorld(worldId).find((l) => !completed[l.id]);
+}
+
+/** Completed / total for a set of levels, for progress bars. */
+export function tally(
+  completed: Record<string, LessonRecord>,
+  levels: Level[],
+): { done: number; total: number } {
+  return { done: levels.filter((l) => completed[l.id]).length, total: levels.length };
 }

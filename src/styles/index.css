@@ -615,6 +615,182 @@ button {
   color: var(--primary-soft);
 }
 
+/* ---------- Worlds ---------- */
+
+/* Horizontal pager. Scroll-snap keeps it a plain scroll container, so touch,
+   trackpad and keyboard all work without a carousel library. */
+.world-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+.world-track::-webkit-scrollbar {
+  display: none;
+}
+
+.world {
+  scroll-snap-align: center;
+  flex: 0 0 86%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, rgba(124, 77, 255, 0.16), rgba(20, 24, 56, 0.85));
+  border: 1px solid rgba(155, 123, 255, 0.28);
+}
+
+.world--locked {
+  background: linear-gradient(180deg, rgba(35, 39, 68, 0.6), rgba(16, 20, 48, 0.85));
+  border-color: rgba(255, 255, 255, 0.07);
+  opacity: 0.72;
+}
+
+.world__planet {
+  font-size: 84px;
+  line-height: 1.1;
+  filter: drop-shadow(0 10px 26px rgba(124, 77, 255, 0.45));
+}
+
+.world__title {
+  font-size: 26px;
+  font-weight: 800;
+  margin: var(--space-2) 0 0;
+}
+
+.world__blurb {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin: 0;
+  max-width: 22em;
+}
+
+.world__stats {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-top: var(--space-2);
+}
+
+.world__cta {
+  margin-top: var(--space-3);
+  width: auto;
+  padding-inline: var(--space-5);
+}
+
+.world__locked-note {
+  margin-top: var(--space-3);
+  font-size: 13px;
+  color: var(--text-faint);
+}
+
+/* ---------- Section nodes & level rows ---------- */
+
+.node--section {
+  width: 132px;
+}
+
+.section-tag {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  margin-top: 2px;
+}
+
+.section-tag--bonus {
+  background: rgba(155, 123, 255, 0.2);
+  color: var(--primary-soft);
+}
+.section-tag--practice {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-dim);
+}
+.section-tag--apply {
+  background: rgba(74, 222, 128, 0.16);
+  color: var(--green);
+}
+.section-tag--hard,
+.section-tag--olympiad {
+  background: rgba(248, 113, 113, 0.16);
+  color: var(--danger);
+}
+.section-tag--exam {
+  background: rgba(242, 178, 55, 0.18);
+  color: var(--gold);
+}
+
+.level-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  text-align: left;
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: var(--text);
+}
+
+.level-row--locked {
+  opacity: 0.45;
+}
+
+/* The one level the learner should do next. */
+.level-row--next {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(242, 178, 55, 0.12);
+}
+
+.level-row--exam {
+  background: linear-gradient(180deg, rgba(242, 178, 55, 0.12), var(--bg-elevated));
+  border-color: rgba(242, 178, 55, 0.35);
+}
+
+.level-row__index {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-panel);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.level-row__title {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.level-row__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 /* ---------- Side rail ---------- */
 
 /* The design shows these as a floating side rail; on a phone-width column that

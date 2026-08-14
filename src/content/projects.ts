@@ -29,7 +29,7 @@ export const PROJECTS: Project[] = [
     title: 'The Rescue Flare',
     blurb: 'Get a signal flare over the ridge — and time the rescue.',
     glyph: '🚀',
-    requires: ['coefficients-abc', 'no-b-basics', 'full-discriminant'],
+    requires: ['q1-4', 'q2-3', 'q5-1'],
     rewardPi: 120,
     rewardXp: 200,
     brief:

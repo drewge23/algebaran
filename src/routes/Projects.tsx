@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { LessonPlayer } from '@/components/LessonPlayer';
 import { MascotSays } from '@/components/Mascot';
 import { PiPill } from '@/components/PiPill';
-import { getLesson } from '@/content/lessons';
+import { getLevel } from '@/content/curriculum';
 import { getProject, PROJECTS, type Project } from '@/content/projects';
 import { useProgressStore } from '@/store/progressStore';
 import { trackQuest } from '@/store/questStore';
@@ -60,7 +60,7 @@ export function ProjectList() {
                 {locked ? (
                   <span className="tiny dim">
                     {t('projects.needs', {
-                      list: missing.map((id) => getLesson(id)?.title ?? id).join(', '),
+                      list: missing.map((id) => getLevel(id)?.title ?? id).join(', '),
                     })}
                   </span>
                 ) : (

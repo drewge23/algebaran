@@ -73,7 +73,10 @@ create table if not exists public.shop_items (
   id text primary key,
   cost integer not null check (cost >= 0),
   kind text not null check (kind in ('avatar', 'collectable', 'consumable', 'key')),
-  key_id text
+  key_id text,
+  -- How much this item adds to the π income multiplier. Stored rather than
+  -- hardcoded in `record_progress` so it cannot drift from src/content/shop.ts.
+  multiplier numeric not null default 0 check (multiplier >= 0)
 );
 
 -- The duel question bank. `correct_index` must never reach the client, which is
@@ -221,13 +224,32 @@ security definer
 set search_path = public
 as $$
 declare
+  v_base text;
   v_username text;
+  v_suffix integer := 0;
 begin
-  -- The client passes `username` in the sign-up metadata.
-  v_username := coalesce(
-    nullif(trim(new.raw_user_meta_data ->> 'username'), ''),
-    'explorer_' || substr(new.id::text, 1, 6)
+  -- The client passes `username` in the sign-up metadata. Everything below is
+  -- defensive: anything this trigger rejects surfaces to the user as an opaque
+  -- "Database error saving new user", so it normalises rather than throws.
+  v_base := left(
+    coalesce(nullif(trim(new.raw_user_meta_data ->> 'username'), ''), 'explorer'),
+    16
   );
+  if char_length(v_base) < 2 then v_base := 'explorer'; end if;
+  v_username := v_base;
+
+  -- The sign-up screen checks availability first, but two sign-ups can still
+  -- race. Prefer a numbered variant over losing the account.
+  while exists (
+    select 1 from public.profiles where lower(username) = lower(v_username)
+  ) loop
+    v_suffix := v_suffix + 1;
+    v_username := left(v_base, 16 - char_length(v_suffix::text)) || v_suffix::text;
+    if v_suffix > 999 then
+      v_username := 'explorer_' || substr(new.id::text, 1, 6);
+      exit;
+    end if;
+  end loop;
 
   insert into public.profiles (id, username, avatar)
   values (
@@ -383,7 +405,8 @@ returns table (
   username text,
   avatar text,
   weekly_xp integer,
-  position integer,
+  -- Not `position`: that is a reserved word in Postgres.
+  rank_position integer,
   is_me boolean,
   tier smallint,
   promotes boolean,
@@ -410,7 +433,7 @@ begin
          p.username,
          p.avatar,
          lm.weekly_xp,
-         (rank() over (order by lm.weekly_xp desc, lm.joined_at))::integer as position,
+         (rank() over (order by lm.weekly_xp desc, lm.joined_at))::integer as rank_position,
          lm.user_id = v_uid as is_me,
          v_tier as tier,
          (rank() over (order by lm.weekly_xp desc, lm.joined_at))
@@ -480,14 +503,9 @@ begin
     return v_state;
   end if;
 
-  -- Collectables multiply π income, exactly as the client's economy does.
-  select 1 + coalesce(sum(
-    case s.id
-      when 'avatar-comet' then 0.1
-      when 'avatar-saturn' then 0.25
-      when 'collectable-galaxy' then 0.5
-      else 0
-    end), 0)
+  -- Collectables multiply π income, exactly as the client's economy does. The
+  -- rates come from `shop_items`, which the seed mirrors from the content files.
+  select 1 + coalesce(sum(s.multiplier), 0)
   into v_multiplier
   from public.player_state ps
   left join public.shop_items s on s.id = any (ps.owned_item_ids)
@@ -640,7 +658,10 @@ begin
     where d.status = 'open' and d.challenger <> v_uid
     order by abs(ps.rating - v_my_rating), d.created_at
     limit 1
-    for update skip locked;
+    -- Lock only the duel row: `for update` alone would also lock the opponent's
+    -- player_state. SKIP LOCKED lets two players racing for the same challenge
+    -- fall through to different ones instead of blocking.
+    for update of d skip locked;
 
     if v_duel.id is not null then
       update public.duels

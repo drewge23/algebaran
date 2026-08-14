@@ -9,7 +9,7 @@ import type { LessonStep } from '@/types/content';
  * sign `−` (U+2212) so they render crisply without a math renderer.
  */
 export const LESSON_STEPS: Record<string, LessonStep[]> = {
-  'coefficients-abc': [
+  'q1-4': [
     {
       kind: 'info',
       title: 'The standard form',
@@ -50,7 +50,7 @@ export const LESSON_STEPS: Record<string, LessonStep[]> = {
     },
   ],
 
-  'why-intro': [
+  'q1-1': [
     {
       kind: 'info',
       title: 'Curves all around us',
@@ -73,7 +73,7 @@ export const LESSON_STEPS: Record<string, LessonStep[]> = {
     },
   ],
 
-  'vieta-intro': [
+  'q9-1': [
     {
       kind: 'info',
       title: 'Vieta’s shortcut',
@@ -98,7 +98,7 @@ export const LESSON_STEPS: Record<string, LessonStep[]> = {
     },
   ],
 
-  'problem-basics': [
+  'q12-1': [
     {
       kind: 'info',
       title: 'From words to symbols',
@@ -120,7 +120,7 @@ export const LESSON_STEPS: Record<string, LessonStep[]> = {
     },
   ],
 
-  'no-b-basics': [
+  'q2-3': [
     {
       kind: 'info',
       title: 'No middle term',
@@ -144,7 +144,7 @@ export const LESSON_STEPS: Record<string, LessonStep[]> = {
     },
   ],
 
-  'no-c-basics': [
+  'q2-7': [
     {
       kind: 'info',
       title: 'No constant',
@@ -168,7 +168,7 @@ export const LESSON_STEPS: Record<string, LessonStep[]> = {
     },
   ],
 
-  'full-discriminant': [
+  'q5-1': [
     {
       kind: 'info',
       title: 'The discriminant',

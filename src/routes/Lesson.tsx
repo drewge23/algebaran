@@ -5,16 +5,17 @@ import { LessonPlayer } from '@/components/LessonPlayer';
 import { MascotSays } from '@/components/Mascot';
 import { PiPill } from '@/components/PiPill';
 import { stepsForLesson } from '@/content/lesson-steps';
-import { getLesson } from '@/content/lessons';
+import { getLevel } from '@/content/curriculum';
 import { usePlayerStore } from '@/store/playerStore';
 import { useProgressStore } from '@/store/progressStore';
 import { trackQuest } from '@/store/questStore';
-import type { Lesson, LessonStep } from '@/types/content';
+import type { LessonStep } from '@/types/content';
+import type { Level } from '@/types/curriculum';
 
 export function LessonRoute() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const lesson = id ? getLesson(id) : undefined;
+  const lesson = id ? getLevel(id) : undefined;
   const steps = lesson ? stepsForLesson(lesson.id) : undefined;
 
   if (!lesson) {
@@ -37,7 +38,7 @@ export function LessonRoute() {
   return <PlayableLesson key={lesson.id} lesson={lesson} steps={steps} />;
 }
 
-function PlayableLesson({ lesson, steps }: { lesson: Lesson; steps: LessonStep[] }) {
+function PlayableLesson({ lesson, steps }: { lesson: Level; steps: LessonStep[] }) {
   const completeLesson = useProgressStore((s) => s.completeLesson);
   const alreadyCompleted = useProgressStore((s) => Boolean(s.completed[lesson.id]));
 
@@ -45,6 +46,7 @@ function PlayableLesson({ lesson, steps }: { lesson: Lesson; steps: LessonStep[]
     <LessonPlayer
       unit={lesson}
       steps={steps}
+      backTo={`/section/${lesson.sectionId}`}
       alreadyRewarded={alreadyCompleted}
       onComplete={(stars) => {
         completeLesson(lesson.id, stars);
@@ -60,7 +62,7 @@ function PlayableLesson({ lesson, steps }: { lesson: Lesson; steps: LessonStep[]
 }
 
 /** Shown for lessons whose interactive content is not authored yet. */
-function PlaceholderLesson({ lesson }: { lesson: Lesson }) {
+function PlaceholderLesson({ lesson }: { lesson: Level }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 

@@ -185,5 +185,25 @@
     "again": "Rematch",
     "mascotWon": "Ha! Experience still counts for something.",
     "mascotLost": "Well. I shall need to practise."
+  },
+  "worlds": {
+    "eyebrow": "Choose a world",
+    "swipeHint": "Swipe to explore",
+    "progress": "{{done}} / {{total}} levels",
+    "enter": "Enter",
+    "continue": "Continue",
+    "mascot": "Each world is a whole branch of mathematics. Start where you are comfortable.",
+    "sectionsMascot": "Pick a landmark. The main road runs straight through — the rest is yours to explore."
+  },
+  "sectionKind": {
+    "practice": "Practice",
+    "bonus": "Bonus",
+    "apply": "Applied",
+    "hard": "Hard",
+    "olympiad": "Olympiad",
+    "exam": "Exam"
+  },
+  "levels": {
+    "comingSoon": "not written yet"
   }
 }

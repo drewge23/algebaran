@@ -7,7 +7,9 @@ import { BeatTheClock } from '@/routes/BeatTheClock';
 import { Collect } from '@/routes/Collect';
 import { Duel } from '@/routes/Duel';
 import { LessonRoute } from '@/routes/Lesson';
-import { LessonMap } from '@/routes/LessonMap';
+import { SectionScreen } from '@/routes/SectionScreen';
+import { WorldMap } from '@/routes/WorldMap';
+import { Worlds } from '@/routes/Worlds';
 import { Profile } from '@/routes/Profile';
 import { ProjectList, ProjectRoute } from '@/routes/Projects';
 import { Quests } from '@/routes/Quests';
@@ -72,7 +74,9 @@ function AuthGate() {
   return (
     <div className="app">
       <Routes>
-        <Route path="/" element={<LessonMap />} />
+        <Route path="/" element={<Worlds />} />
+        <Route path="/world/:worldId" element={<WorldMap />} />
+        <Route path="/section/:sectionId" element={<SectionScreen />} />
         <Route path="/projects" element={<ProjectList />} />
         <Route path="/projects/:id" element={<ProjectRoute />} />
         <Route path="/quests" element={<Quests />} />

@@ -23,10 +23,31 @@ const sq = (s) => `'${String(s).replace(/'/g, "''")}'`;
 const arr = (items) => `array[${items.map(sq).join(', ')}]`;
 
 // --- rewards (lessons + projects) ---
-const lessonsSrc = read('lessons.ts');
-const lessonRows = [
-  ...lessonsSrc.matchAll(/id:\s*'([^']+)',[\s\S]*?rewardPi:\s*(\d+),\s*rewardXp:\s*(\d+)/g),
-].map((m) => ({ kind: 'lesson', id: m[1], pi: Number(m[2]), xp: Number(m[3]) }));
+// Levels declare a kind; payouts come from the REWARDS table in
+// types/curriculum.ts, so parse both and join them.
+const curriculumSrc = read('curriculum.ts');
+const rewardTableSrc = readFileSync(join(root, 'src/types/curriculum.ts'), 'utf8');
+const rewardByKind = Object.fromEntries(
+  [...rewardTableSrc.matchAll(/(\w+):\s*\{\s*pi:\s*(\d+),\s*xp:\s*(\d+)\s*\}/g)].map((m) => [
+    m[1],
+    { pi: Number(m[2]), xp: Number(m[3]) },
+  ]),
+);
+
+const lessonRows = [];
+for (const block of curriculumSrc.matchAll(
+  /(\w[\w-]*):\s*\{\s*defaultKind:\s*'(\w+)',\s*levels:\s*\[([\s\S]*?)\n\s{4}\],/g,
+)) {
+  const defaultKind = block[2];
+  for (const lvl of block[3].matchAll(
+    /\[\s*'([^']+)',\s*'(?:[^'\\]|\\.)*',\s*'(?:[^'\\]|\\.)*'(?:,\s*'(\w+)')?\s*\]/g,
+  )) {
+    const kind = lvl[2] ?? defaultKind;
+    const r = rewardByKind[kind];
+    if (!r) continue;
+    lessonRows.push({ kind: 'lesson', id: lvl[1], pi: r.pi, xp: r.xp });
+  }
+}
 
 const projectsSrc = read('projects.ts');
 const projectRows = [
@@ -43,6 +64,7 @@ const shopRows = [...shopSrc.matchAll(/\{\s*id:\s*'([^']+)',[\s\S]*?\n\s*\},/g)]
     cost: Number(pick(/cost:\s*(\d+)/)),
     kind: pick(/kind:\s*'([^']+)'/),
     keyId: pick(/keyId:\s*'([^']+)'/) ?? null,
+    multiplier: Number(pick(/multiplier:\s*([\d.]+)/) ?? 0),
   };
 });
 
@@ -75,12 +97,16 @@ ${[...lessonRows, ...projectRows]
 on conflict (kind, item_id) do update
   set reward_pi = excluded.reward_pi, reward_xp = excluded.reward_xp;
 
-insert into public.shop_items (id, cost, kind, key_id) values
+insert into public.shop_items (id, cost, kind, key_id, multiplier) values
 ${shopRows
-  .map((r) => `  (${sq(r.id)}, ${r.cost}, ${sq(r.kind)}, ${r.keyId ? sq(r.keyId) : 'null'})`)
+  .map(
+    (r) =>
+      `  (${sq(r.id)}, ${r.cost}, ${sq(r.kind)}, ${r.keyId ? sq(r.keyId) : 'null'}, ${r.multiplier})`,
+  )
   .join(',\n')}
 on conflict (id) do update
-  set cost = excluded.cost, kind = excluded.kind, key_id = excluded.key_id;
+  set cost = excluded.cost, kind = excluded.kind, key_id = excluded.key_id,
+      multiplier = excluded.multiplier;
 
 insert into public.quickfire (id, equation, prompt, options, correct_index) values
 ${qfRows
