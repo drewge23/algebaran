@@ -66,6 +66,8 @@ namespacing in `accountScope` — nothing else depends on how accounts are store
 - `content/` — catalogues: `lessons` (sections + lessons), `lesson-steps`
   (**the authoring seam** for interactive content), `projects`, `quickfire`
   (duel/timed question bank), `quests`, `shop`, `achievements`.
+- `styles/index.css` — the whole design system (tokens + component classes).
+- `assets/professorson/` — mascot art, one file per mood.
 
 ## Quests
 
@@ -74,9 +76,6 @@ date so the same day always yields the same quests (a fresh `Math.random()` woul
 reroll them on every mount). Progress is pushed by `trackQuest(metric, amount)`
 from wherever the event happens — nothing polls. Add a metric to `QuestMetric`
 and call `trackQuest` at the event site.
-
-- `styles/index.css` — the whole design system (tokens + component classes).
-- `assets/professorson/` — mascot art, one file per mood.
 
 ## Adding a lesson
 
