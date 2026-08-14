@@ -72,6 +72,10 @@ function PlaceholderLesson({ lesson }: { lesson: Level }) {
   const completeLesson = useProgressStore((s) => s.completeLesson);
   const alreadyCompleted = useProgressStore((s) => Boolean(s.completed[lesson.id]));
 
+  // Finishing or leaving returns to the map this level sits on, never the home
+  // screen — being thrown back to the world selector loses the learner's place.
+  const backTo = regionOfSection(lesson.sectionId) ?? '/';
+
   const complete = () => {
     if (!alreadyCompleted) {
       earnPi(lesson.rewardPi);
@@ -79,7 +83,7 @@ function PlaceholderLesson({ lesson }: { lesson: Level }) {
       registerActivity();
     }
     completeLesson(lesson.id, 3);
-    navigate('/');
+    navigate(backTo);
   };
 
   return (
@@ -89,7 +93,7 @@ function PlaceholderLesson({ lesson }: { lesson: Level }) {
           type="button"
           className="icon-btn"
           aria-label={t('common.back')}
-          onClick={() => navigate('/')}>
+          onClick={() => navigate(backTo)}>
           ←
         </button>
         <div className="grow" style={{ fontWeight: 800, fontSize: 17 }}>
