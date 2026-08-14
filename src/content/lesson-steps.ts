@@ -135,12 +135,12 @@ export const LESSON_STEPS: Record<string, LessonStep[]> = {
       explanation: 'Add 9 to both sides: x² = 9.',
     },
     {
-      kind: 'choice',
-      prompt: 'So what is x?',
+      kind: 'roots',
+      prompt: 'Now give both roots.',
       equation: 'x² = 9',
-      options: ['x = 3', 'x = ±3', 'x = 9', 'x = ±9'],
-      correctIndex: 1,
-      explanation: '√9 = 3, and squaring loses the sign, so x = ±3.',
+      roots: ['3', '−3'],
+      hint: 'Take the square root of both sides — and remember a square hides the sign, so there are two answers.',
+      explanation: 'Squaring loses the sign, so both 3 and −3 give 9.',
     },
   ],
 
@@ -165,6 +165,45 @@ export const LESSON_STEPS: Record<string, LessonStep[]> = {
       options: ['x = 5 only', 'x = 0 or x = 5', 'x = 0 only', 'x = −5 or 5'],
       correctIndex: 1,
       explanation: 'Either x = 0 or x − 5 = 0, so x = 0 or x = 5.',
+    },
+  ],
+
+  'full-discriminant': [
+    {
+      kind: 'info',
+      title: 'The discriminant',
+      equation: 'D = b² − 4ac',
+      body: 'For the full equation, one number decides everything. D tells you how many roots exist before you solve: D > 0 gives two, D = 0 gives one, D < 0 gives none.',
+    },
+    {
+      kind: 'choice',
+      prompt: 'Find D.',
+      equation: 'x² − x − 2 = 0',
+      options: ['9', '−7', '1', '−9'],
+      correctIndex: 0,
+      hint: 'Read off a = 1, b = −1, c = −2, then substitute into b² − 4ac.',
+      explanation: 'D = (−1)² − 4·1·(−2) = 1 + 8 = 9.',
+    },
+    {
+      kind: 'choice',
+      prompt: 'So how many roots does it have?',
+      options: ['None', 'One', 'Two', 'Infinitely many'],
+      correctIndex: 2,
+      explanation: 'D = 9 is positive, so there are two distinct roots.',
+    },
+    {
+      kind: 'info',
+      title: 'The formula',
+      equation: 'x = (−b ± √D) / 2a',
+      body: 'With D in hand, the two roots come straight out of this formula — the ± is what splits them apart.',
+    },
+    {
+      kind: 'roots',
+      prompt: 'Find the roots of the quadratic equation.',
+      equation: 'x² − x − 2 = 0',
+      roots: ['2', '−1'],
+      hint: 'D = 9 and √9 = 3, so x = (1 ± 3) / 2. Work out both signs.',
+      explanation: 'x = (1 + 3)/2 = 2 and x = (1 − 3)/2 = −1.',
     },
   ],
 };

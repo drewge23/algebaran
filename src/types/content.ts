@@ -60,6 +60,8 @@ export type LessonStep =
       options: string[];
       correctIndex: number;
       explanation?: string;
+      /** Revealed on demand via the Theory button, before answering. */
+      hint?: string;
     }
   | {
       kind: 'input';
@@ -69,6 +71,17 @@ export type LessonStep =
       /** Acceptable answers; compared after normalisation (see lib/answer). */
       accepted: string[];
       explanation?: string;
+      hint?: string;
+    }
+  | {
+      /** Solve for both roots — the x₁ / x₂ pair from the lesson design. */
+      kind: 'roots';
+      prompt: string;
+      equation: string;
+      /** The expected roots; matched order-insensitively (see checkRoots). */
+      roots: [string, string];
+      explanation?: string;
+      hint?: string;
     };
 
 export interface ShopItem {

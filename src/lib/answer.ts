@@ -21,3 +21,22 @@ export function checkAnswer(input: string, accepted: string[]): boolean {
   const normalized = normalizeEquation(input);
   return accepted.some((candidate) => normalizeEquation(candidate) === normalized);
 }
+
+/**
+ * Checks a set of roots (x₁, x₂) against the expected ones. Order does not
+ * matter — x₁ = 2, x₂ = −1 is the same solution as the other way round — and
+ * each expected root must be used exactly once, so answering the same root
+ * twice is rejected.
+ */
+export function checkRoots(inputs: string[], accepted: string[]): boolean {
+  if (inputs.length !== accepted.length) return false;
+  if (inputs.some((i) => !i.trim())) return false;
+
+  const remaining = accepted.map(normalizeEquation);
+  for (const input of inputs.map(normalizeEquation)) {
+    const at = remaining.indexOf(input);
+    if (at === -1) return false;
+    remaining.splice(at, 1);
+  }
+  return remaining.length === 0;
+}

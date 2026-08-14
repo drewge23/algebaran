@@ -6,7 +6,7 @@ import { EquationKeyboard } from '@/components/EquationKeyboard';
 import { MascotSays, type Mood } from '@/components/Mascot';
 import { MathText } from '@/components/MathText';
 import { PiPill } from '@/components/PiPill';
-import { checkAnswer } from '@/lib/answer';
+import { checkAnswer, checkRoots } from '@/lib/answer';
 import { looksLikeMath } from '@/lib/format';
 import { usePlayerStore } from '@/store/playerStore';
 import { useProgressStore } from '@/store/progressStore';
@@ -14,10 +14,18 @@ import type { Lesson, LessonStep } from '@/types/content';
 
 type Result = { stars: number; pi: number; xp: number; rewarded: boolean };
 
+/** How many answer boxes a step needs (0 = not a typed step). */
+function fieldCount(step: LessonStep): number {
+  if (step.kind === 'input') return 1;
+  if (step.kind === 'roots') return 2;
+  return 0;
+}
+
 /**
- * The lesson engine: renders one step at a time — info cards, multiple choice,
- * and typed answers via the on-screen keyboard. Mistakes cost stars (3 → 1) and
- * π/XP are awarded once, never on replay of a completed lesson.
+ * The lesson engine: renders one step at a time — explanation cards, multiple
+ * choice, typed answers, and two-root solutions — all driven by the on-screen
+ * keyboard. Mistakes cost stars (3 → 1) and π/XP are awarded once, never on
+ * replay of a completed lesson.
  */
 export function LessonPlayer({ lesson, steps }: { lesson: Lesson; steps: LessonStep[] }) {
   const { t } = useTranslation();
@@ -31,8 +39,10 @@ export function LessonPlayer({ lesson, steps }: { lesson: Lesson; steps: LessonS
 
   const [stepIndex, setStepIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
-  const [answer, setAnswer] = useState('');
+  const [answers, setAnswers] = useState<string[]>(['', '']);
+  const [activeField, setActiveField] = useState(0);
   const [wasRight, setWasRight] = useState<boolean | null>(null);
+  const [hintShown, setHintShown] = useState(false);
   const [lockedHint, setLockedHint] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [mistakes, setMistakes] = useState(0);
@@ -40,6 +50,12 @@ export function LessonPlayer({ lesson, steps }: { lesson: Lesson; steps: LessonS
 
   const step = steps[stepIndex];
   const isLast = stepIndex === steps.length - 1;
+  const fields = fieldCount(step);
+  const isTyped = fields > 0;
+  const filled = answers.slice(0, fields).every((a) => a.trim());
+
+  const editField = (fn: (current: string) => string) =>
+    setAnswers((prev) => prev.map((a, i) => (i === activeField ? fn(a) : a)));
 
   const reveal = (correct: boolean) => {
     setRevealed(true);
@@ -55,16 +71,19 @@ export function LessonPlayer({ lesson, steps }: { lesson: Lesson; steps: LessonS
   };
 
   const check = () => {
-    if (revealed || step.kind !== 'input') return;
-    reveal(checkAnswer(answer, step.accepted));
+    if (revealed || !isTyped || !filled) return;
+    if (step.kind === 'input') reveal(checkAnswer(answers[0], step.accepted));
+    else if (step.kind === 'roots') reveal(checkRoots(answers.slice(0, 2), step.roots));
   };
 
   const advance = () => {
     if (!isLast) {
       setStepIndex((i) => i + 1);
       setSelected(null);
-      setAnswer('');
+      setAnswers(['', '']);
+      setActiveField(0);
       setWasRight(null);
+      setHintShown(false);
       setLockedHint(false);
       setRevealed(false);
       return;
@@ -111,10 +130,46 @@ export function LessonPlayer({ lesson, steps }: { lesson: Lesson; steps: LessonS
       : t('lesson.encourageWrong')
     : t('lesson.encourageStart');
 
+  const hint = 'hint' in step ? step.hint : undefined;
+  const answerFieldClass = (index: number) =>
+    [
+      'answer-field',
+      revealed
+        ? wasRight
+          ? 'answer-field--right'
+          : 'answer-field--wrong'
+        : index === activeField
+          ? 'answer-field--active'
+          : '',
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+  const renderField = (index: number, label: string) => (
+    <div className="answer-row" key={index}>
+      <span className="answer-row__label">{label}</span>
+      <button
+        type="button"
+        className={answerFieldClass(index)}
+        disabled={revealed}
+        onClick={() => setActiveField(index)}>
+        {answers[index] ? (
+          <>
+            {answers[index]}
+            {!revealed && index === activeField && <span className="caret" />}
+          </>
+        ) : (
+          <span className="answer-field__placeholder">
+            {index === activeField && !revealed ? t('lesson.typeHere') : '…'}
+          </span>
+        )}
+      </button>
+    </div>
+  );
+
   return (
     <>
       <div className="screen" style={{ paddingBottom: 0 }}>
-        {/* Header */}
         <div className="topbar">
           <button
             type="button"
@@ -132,7 +187,6 @@ export function LessonPlayer({ lesson, steps }: { lesson: Lesson; steps: LessonS
           <PiPill />
         </div>
 
-        {/* Segmented progress */}
         <div className="steps" style={{ marginTop: 4 }}>
           {steps.map((_, i) => (
             <div key={i} className={`steps__seg${i <= stepIndex ? ' steps__seg--done' : ''}`} />
@@ -143,7 +197,6 @@ export function LessonPlayer({ lesson, steps }: { lesson: Lesson; steps: LessonS
           {says}
         </MascotSays>
 
-        {/* Paper card */}
         <div className="card fade-in" key={stepIndex}>
           <div className="card__kicker">
             {step.kind === 'info' ? `📖 ${t('lesson.learn')}` : `💡 ${t('lesson.solve')}`}
@@ -185,7 +238,6 @@ export function LessonPlayer({ lesson, steps }: { lesson: Lesson; steps: LessonS
                   );
                 })}
               </div>
-              {revealed && step.explanation && <p className="card__note">{step.explanation}</p>}
             </>
           )}
 
@@ -195,47 +247,38 @@ export function LessonPlayer({ lesson, steps }: { lesson: Lesson; steps: LessonS
               <h2 className="card__question" style={{ marginTop: 12 }}>
                 {step.prompt}
               </h2>
-              <div className="answer-row">
-                <span className="answer-row__label">=</span>
-                <div
-                  className={[
-                    'answer-field',
-                    revealed
-                      ? wasRight
-                        ? 'answer-field--right'
-                        : 'answer-field--wrong'
-                      : 'answer-field--active',
-                  ].join(' ')}>
-                  {answer ? (
-                    <>
-                      {answer}
-                      {!revealed && <span className="caret" />}
-                    </>
-                  ) : (
-                    <span className="answer-field__placeholder">{t('lesson.typeHere')}</span>
-                  )}
-                </div>
-              </div>
-              {revealed && (
-                <p className="card__note">
-                  {wasRight
-                    ? t('lesson.correct')
-                    : t('lesson.correctAnswerIs', { answer: step.accepted[0] })}
-                  {step.explanation ? ` ${step.explanation}` : ''}
-                </p>
-              )}
-              {!revealed && lockedHint && <p className="card__note">🔒 {t('lesson.keyLocked')}</p>}
+              {renderField(0, '=')}
             </>
           )}
 
-          {/* Card actions */}
+          {step.kind === 'roots' && (
+            <>
+              <h2 className="card__question">{step.prompt}</h2>
+              <MathText>{step.equation}</MathText>
+              <hr className="card__rule" />
+              {renderField(0, 'x₁ =')}
+              {renderField(1, 'x₂ =')}
+            </>
+          )}
+
+          {/* Feedback / hints */}
+          {revealed && (
+            <p className="card__note">
+              {(step.kind === 'input' || step.kind === 'roots') &&
+                (wasRight
+                  ? `${t('lesson.correct')} `
+                  : `${t('lesson.correctAnswerIs', {
+                      answer: step.kind === 'roots' ? step.roots.join(', ') : step.accepted[0],
+                    })} `)}
+              {'explanation' in step ? step.explanation : ''}
+            </p>
+          )}
+          {!revealed && hintShown && hint && <p className="card__note">💡 {hint}</p>}
+          {!revealed && lockedHint && <p className="card__note">🔒 {t('lesson.keyLocked')}</p>}
+
           <div className="btn--wide-pair" style={{ marginTop: 20 }}>
-            {step.kind === 'input' && !revealed ? (
-              <button
-                type="button"
-                className="btn btn--primary"
-                disabled={!answer.trim()}
-                onClick={check}>
+            {isTyped && !revealed ? (
+              <button type="button" className="btn btn--primary" disabled={!filled} onClick={check}>
                 {t('lesson.check')} →
               </button>
             ) : (
@@ -247,17 +290,24 @@ export function LessonPlayer({ lesson, steps }: { lesson: Lesson; steps: LessonS
                 {isLast ? t('lesson.finish') : t('common.continue')} →
               </button>
             )}
+            {hint && !revealed && !hintShown && (
+              <button
+                type="button"
+                className="btn btn--paper btn--auto"
+                onClick={() => setHintShown(true)}>
+                📖 {t('lesson.theory')}
+              </button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Keyboard docks to the bottom for typed steps */}
-      {step.kind === 'input' && !revealed ? (
+      {isTyped && !revealed ? (
         <EquationKeyboard
-          canSubmit={!!answer.trim()}
-          onInsert={(v) => setAnswer((a) => a + v)}
-          onBackspace={() => setAnswer((a) => a.slice(0, -1))}
-          onClear={() => setAnswer('')}
+          canSubmit={filled}
+          onInsert={(v) => editField((a) => a + v)}
+          onBackspace={() => editField((a) => a.slice(0, -1))}
+          onClear={() => editField(() => '')}
           onSubmit={check}
           onLockedPress={() => setLockedHint(true)}
         />

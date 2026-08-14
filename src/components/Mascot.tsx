@@ -1,10 +1,10 @@
-import excited from '@/assets/professorson/excited.png';
-import happy from '@/assets/professorson/happy.png';
-import pointing from '@/assets/professorson/pointing.png';
-import proud from '@/assets/professorson/proud.png';
-import sleepy from '@/assets/professorson/sleepy.png';
-import thinking from '@/assets/professorson/thinking.png';
-import wink from '@/assets/professorson/wink.png';
+import excited from '@/assets/professorson/excited.webp';
+import happy from '@/assets/professorson/happy.webp';
+import pointing from '@/assets/professorson/pointing.webp';
+import proud from '@/assets/professorson/proud.webp';
+import sleepy from '@/assets/professorson/sleepy.webp';
+import thinking from '@/assets/professorson/thinking.webp';
+import wink from '@/assets/professorson/wink.webp';
 
 /** Professorson's moods, picked to match what just happened on screen. */
 export type Mood = 'happy' | 'thinking' | 'excited' | 'proud' | 'wink' | 'sleepy' | 'pointing';

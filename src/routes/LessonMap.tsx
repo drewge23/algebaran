@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { MascotSays } from '@/components/Mascot';
 import { PiPill } from '@/components/PiPill';
-import avatarArt from '@/assets/professorson/happy.png';
+import avatarArt from '@/assets/professorson/happy.webp';
 import { ORDERED_LESSONS } from '@/content/lessons';
 import { statusForLesson, useProgressStore, type LessonStatus } from '@/store/progressStore';
 import type { Lesson } from '@/types/content';

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import { checkAnswer, normalizeEquation } from '@/lib/answer';
+import { checkAnswer, checkRoots, normalizeEquation } from '@/lib/answer';
 
 describe('answer normalisation', () => {
   test('normalises case, spaces, dashes and superscripts', () => {
@@ -21,5 +21,30 @@ describe('answer normalisation', () => {
 
   test('checkAnswer rejects empty input', () => {
     expect(checkAnswer('   ', ['x=0'])).toBe(false);
+  });
+});
+
+describe('root checking', () => {
+  test('accepts the roots in either order', () => {
+    expect(checkRoots(['2', '−1'], ['2', '−1'])).toBe(true);
+    expect(checkRoots(['−1', '2'], ['2', '−1'])).toBe(true);
+  });
+
+  test('accepts equivalent notations for a root', () => {
+    expect(checkRoots(['-1', '2'], ['−1', '2'])).toBe(true);
+  });
+
+  test('rejects a repeated root when two distinct ones are expected', () => {
+    expect(checkRoots(['2', '2'], ['2', '−1'])).toBe(false);
+  });
+
+  test('accepts a genuine double root', () => {
+    expect(checkRoots(['3', '3'], ['3', '3'])).toBe(true);
+  });
+
+  test('rejects wrong, blank or mismatched-length answers', () => {
+    expect(checkRoots(['5', '−1'], ['2', '−1'])).toBe(false);
+    expect(checkRoots(['2', '  '], ['2', '−1'])).toBe(false);
+    expect(checkRoots(['2'], ['2', '−1'])).toBe(false);
   });
 });

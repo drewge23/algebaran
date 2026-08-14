@@ -52,9 +52,21 @@ by the mascot, **Professorson**.
 ## Adding a lesson
 
 Add an entry to `LESSON_STEPS` in `src/content/lesson-steps.ts` keyed by lesson
-id. Steps are `info` | `choice` | `input`. Lessons with no entry fall back to a
-placeholder screen. **`LessonPlayer` must stay keyed by lesson id** in
+id. Step kinds:
+
+- `info` — explanation card, optional `equation`.
+- `choice` — multiple choice; prose options render in the UI font, mathematical
+  ones in the serif italic (detected by `lib/format.looksLikeMath`).
+- `input` — one typed answer, matched against `accepted[]` after normalisation.
+- `roots` — the x₁ / x₂ pair; matched order-insensitively by `lib/answer.checkRoots`.
+
+Any answerable step may carry a `hint`, which surfaces the **Theory** button and
+reveals the hint without giving away the answer. Lessons with no entry fall back
+to a placeholder screen. **`LessonPlayer` must stay keyed by lesson id** in
 `routes/Lesson.tsx` — without it, navigating lesson→lesson leaks step/mistake state.
+
+Mascot art is **WebP** (`src/assets/professorson/*.webp`); PNGs were 10× larger.
+If you add art, convert it too and keep `webp` in the PWA `globPatterns`.
 
 ## Commands
 

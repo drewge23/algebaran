@@ -52,7 +52,7 @@ export default defineConfig({
       },
       workbox: {
         // The whole app is static; precache it so it works offline once installed.
-        globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,png,webp,svg,woff2}'],
       },
     }),
   ],
