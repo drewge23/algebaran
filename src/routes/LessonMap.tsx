@@ -57,7 +57,7 @@ export function LessonMap() {
           </span>
           {t('home.theory')}
         </button>
-        <button type="button" className="rail__btn" disabled>
+        <button type="button" className="rail__btn" onClick={() => navigate('/beat-the-clock')}>
           <span className="rail__icon" aria-hidden="true">
             ⏱️
           </span>
@@ -74,7 +74,14 @@ export function LessonMap() {
               index={i + 1}
               status={statusForLesson(completed, lesson)}
               stars={completed[lesson.id]?.stars ?? 0}
-              onPress={() => navigate(`/lesson/${lesson.id}`)}
+              // The bonus section is the timed round, not a step-by-step lesson.
+              onPress={() =>
+                navigate(
+                  lesson.sectionId === 'beat-the-clock'
+                    ? '/beat-the-clock'
+                    : `/lesson/${lesson.id}`,
+                )
+              }
             />
           </div>
         ))}

@@ -12,9 +12,9 @@ export function BottomNav() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
 
-  // The lesson player is a focused, full-screen flow (and needs the room for
-  // the keyboard), so the nav steps out of the way.
-  if (pathname.startsWith('/lesson/')) return null;
+  // Lessons and the timed round are focused, full-screen flows (and need the
+  // room for the keyboard), so the nav steps out of the way.
+  if (pathname.startsWith('/lesson/') || pathname === '/beat-the-clock') return null;
 
   return (
     <nav className="nav">

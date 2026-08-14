@@ -58,9 +58,10 @@ a new lesson.
 
 ## Status
 
-Playable prototype. Navigation, theming, i18n (EN/RU), persistence, and the full
-gamification economy are wired. The lesson engine supports explanation cards,
-multiple choice, and typed equations via a custom on-screen keyboard —
-**6 of 8 curriculum sections** have authored content.
+Playable prototype covering **all 8 curriculum sections**. Navigation, theming,
+i18n (EN/RU), persistence and the full gamification economy are wired. The lesson
+engine supports explanation cards, multiple choice, typed equations and two-root
+solutions via a custom on-screen keyboard, plus a timed "Beat the Clock" bonus
+round.
 
-Next: the discriminant lesson, and the timed "Beat the Clock" bonus round.
+Next: more problems per section, and the exam / olympiad nodes from the design.

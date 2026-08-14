@@ -2,6 +2,7 @@ import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { BottomNav } from '@/components/BottomNav';
 import { Achievements } from '@/routes/Achievements';
+import { BeatTheClock } from '@/routes/BeatTheClock';
 import { Collect } from '@/routes/Collect';
 import { LessonRoute } from '@/routes/Lesson';
 import { LessonMap } from '@/routes/LessonMap';
@@ -21,6 +22,7 @@ export function App() {
           <Route path="/awards" element={<Achievements />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/lesson/:id" element={<LessonRoute />} />
+          <Route path="/beat-the-clock" element={<BeatTheClock />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <BottomNav />

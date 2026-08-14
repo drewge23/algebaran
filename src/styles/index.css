@@ -1073,6 +1073,57 @@ button {
   color: #fff;
 }
 
+/* ---------- Beat the Clock ---------- */
+
+.clock-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-3) 0;
+}
+
+.clock-time {
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  min-width: 3.2em;
+}
+
+.clock-time--urgent {
+  color: var(--danger);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.bar__fill--timer {
+  background: linear-gradient(90deg, var(--gold), var(--danger));
+  transition: width 0.1s linear;
+}
+
+.clock-score {
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Brief tint on the card confirming the last answer. */
+.card--right {
+  box-shadow:
+    0 0 0 3px var(--green-deep),
+    var(--shadow-card);
+}
+
+.card--wrong {
+  box-shadow:
+    0 0 0 3px var(--danger),
+    var(--shadow-card);
+}
+
 /* ---------- Result ---------- */
 
 .result {

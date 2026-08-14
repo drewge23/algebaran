@@ -86,5 +86,16 @@
     "unlocked": "Unlocked",
     "locked": "Locked",
     "progress": "{{unlocked}} of {{total}} unlocked"
+  },
+  "clock": {
+    "intro": "Sixty seconds. Let's see how fast that brain of yours really is.",
+    "rulesTitle": "{{seconds}} seconds on the clock",
+    "rules": "Answer as many as you can. Each correct answer earns {{pi}} π; a wrong one costs three seconds.",
+    "start": "Start the round",
+    "timeUp": "Time's up!",
+    "correct": "Correct",
+    "missed": "Missed",
+    "again": "Go again",
+    "tryAgainHint": "A solid start. Speed comes with the practice."
   }
 }
