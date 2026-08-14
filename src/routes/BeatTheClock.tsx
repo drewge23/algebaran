@@ -9,6 +9,7 @@ import { QUICKFIRE, type QuickQuestion } from '@/content/quickfire';
 import { shuffle } from '@/lib/random';
 import { usePlayerStore } from '@/store/playerStore';
 import { useProgressStore } from '@/store/progressStore';
+import { trackQuest } from '@/store/questStore';
 
 const ROUND_SECONDS = 60;
 /** π per correct answer, before the player's income multiplier. */
@@ -56,10 +57,14 @@ export function BeatTheClock() {
       if (finalCorrect > 0) {
         // Unlike lessons, the bonus round pays out every run — it is the
         // repeatable π faucet — but the map records only your best result.
-        setAwarded(earnPi(finalCorrect * PI_PER_CORRECT));
+        const payout = finalCorrect * PI_PER_CORRECT;
+        setAwarded(earnPi(payout));
         registerActivity();
         completeLesson(BONUS_LESSON_ID, starsForScore(finalCorrect));
+        trackQuest('piEarned', payout);
+        trackQuest('clockCorrect', finalCorrect);
       }
+      trackQuest('clockRounds');
     },
     [earnPi, registerActivity, completeLesson],
   );

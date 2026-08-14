@@ -3,6 +3,11 @@
  * they are trivially unit-testable.
  */
 
+/** Returns the current month as `YYYY-MM` — the reset key for monthly quests. */
+export function monthKey(date: Date = new Date()): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
 /** Returns today's date as an ISO calendar date string: `YYYY-MM-DD`. */
 export function todayISO(date: Date = new Date()): string {
   const y = date.getFullYear();

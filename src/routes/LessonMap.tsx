@@ -5,6 +5,7 @@ import { MascotSays } from '@/components/Mascot';
 import { PiPill } from '@/components/PiPill';
 import avatarArt from '@/assets/professorson/happy.webp';
 import { ORDERED_LESSONS } from '@/content/lessons';
+import { usePlayerStore } from '@/store/playerStore';
 import { statusForLesson, useProgressStore, type LessonStatus } from '@/store/progressStore';
 import type { Lesson } from '@/types/content';
 
@@ -15,6 +16,7 @@ export function LessonMap() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const completed = useProgressStore((s) => s.completed);
+  const rating = usePlayerStore((s) => s.rating);
 
   const total = ORDERED_LESSONS.length;
   const done = ORDERED_LESSONS.filter((l) => completed[l.id]).length;
@@ -51,11 +53,12 @@ export function LessonMap() {
       <MascotSays mood="happy">{t('home.greeting')}</MascotSays>
 
       <div className="rail">
-        <button type="button" className="rail__btn" onClick={() => navigate('/awards')}>
+        <button type="button" className="rail__btn" onClick={() => navigate('/duel')}>
           <span className="rail__icon" aria-hidden="true">
-            🔭
+            ⚔️
           </span>
-          {t('home.theory')}
+          {t('duel.title')}
+          <span className="rail__reward">{rating}</span>
         </button>
         <button type="button" className="rail__btn" onClick={() => navigate('/beat-the-clock')}>
           <span className="rail__icon" aria-hidden="true">

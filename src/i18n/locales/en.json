@@ -13,7 +13,9 @@
     "lessons": "Lessons",
     "collect": "Collect",
     "profile": "Profile",
-    "awards": "Awards"
+    "awards": "Awards",
+    "projects": "Projects",
+    "quests": "Quests"
   },
   "home": {
     "eyebrow": "Quadratic equations",
@@ -97,5 +99,91 @@
     "missed": "Missed",
     "again": "Go again",
     "tryAgainHint": "A solid start. Speed comes with the practice."
+  },
+  "auth": {
+    "welcome": "Before we set off — who's flying today?",
+    "chooseProfile": "Choose a profile",
+    "newProfile": "New profile",
+    "createTitle": "Create your explorer",
+    "name": "Name",
+    "namePlaceholder": "e.g. Nova",
+    "avatar": "Profile picture",
+    "usePin": "Protect with a PIN",
+    "pinNote": "Four digits, so nobody else opens your progress. Stored on this device only — not real security.",
+    "enterPin": "Enter PIN",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "noPin": "No PIN",
+    "pinProtected": "PIN protected",
+    "createAccount": "Start exploring",
+    "switchProfile": "Switch profile",
+    "deleteProfile": "Delete profile",
+    "deleteConfirm": "Delete this profile and all its progress? This cannot be undone.",
+    "localOnly": "Profiles are saved on this device only.",
+    "errors": {
+      "nameRequired": "Please pick a name.",
+      "nameTooLong": "That name is a little long.",
+      "nameTaken": "That name is already used on this device.",
+      "pinFormat": "The PIN must be exactly four digits.",
+      "wrongPin": "That PIN is not right.",
+      "notFound": "Profile not found.",
+      "unknown": "Something went wrong."
+    }
+  },
+  "quests": {
+    "title": "Quests",
+    "subtitle": "Daily and monthly goals that pay in π.",
+    "intro": "Small goals, steady progress. Come back tomorrow for a fresh set.",
+    "hasClaimable": "You have {{count}} reward(s) waiting. Go on, claim them.",
+    "daily": "Daily",
+    "monthly": "Monthly",
+    "dailyNote": "resets at midnight",
+    "monthlyNote": "resets next month",
+    "claim": "Claim",
+    "defs": {
+      "lessons_1": "Complete a lesson",
+      "lessons_2": "Complete 2 lessons",
+      "lessons_8": "Complete 8 lessons",
+      "pi_40": "Earn 40 π",
+      "pi_80": "Earn 80 π",
+      "pi_600": "Earn 600 π",
+      "clock_1": "Play a Beat the Clock round",
+      "clock_15": "Play 15 Beat the Clock rounds",
+      "clock_correct_10": "Get 10 correct answers against the clock",
+      "duel_played_1": "Fight a duel",
+      "duel_won_1": "Win a duel",
+      "duel_won_10": "Win 10 duels",
+      "perfect_1": "Finish a lesson with 3 stars",
+      "perfect_5": "Finish 5 lessons with 3 stars",
+      "project_4": "Complete a project"
+    }
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "Real briefs that use everything you have learned.",
+    "intro": "A project is not a drill. One scenario, start to finish — exactly how this maths gets used.",
+    "brief": "The brief",
+    "briefingSays": "Read it carefully. The numbers matter.",
+    "start": "Accept the brief",
+    "replay": "Run it again",
+    "reward": "Reward: {{pi}} π and {{xp}} XP.",
+    "needs": "Unlocks after: {{list}}",
+    "lockedBody": "Finish the required lessons first — this project uses them.",
+    "completed": "Mission complete!"
+  },
+  "duel": {
+    "title": "Duel",
+    "vs": "VS",
+    "you": "You",
+    "taunt": "No other explorers online, so you'll have to beat me. Good luck with that.",
+    "rulesTitle": "{{count}} questions, head to head",
+    "rules": "You both answer the same questions. Most correct wins; if you tie, the faster explorer takes it. Winner gets {{pi}} π and rating.",
+    "start": "Begin the duel",
+    "won": "You win!",
+    "lost": "You lose",
+    "drew": "A draw",
+    "again": "Rematch",
+    "mascotWon": "Ha! Experience still counts for something.",
+    "mascotLost": "Well. I shall need to practise."
   }
 }

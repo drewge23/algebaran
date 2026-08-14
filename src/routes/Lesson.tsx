@@ -8,7 +8,8 @@ import { stepsForLesson } from '@/content/lesson-steps';
 import { getLesson } from '@/content/lessons';
 import { usePlayerStore } from '@/store/playerStore';
 import { useProgressStore } from '@/store/progressStore';
-import type { Lesson } from '@/types/content';
+import { trackQuest } from '@/store/questStore';
+import type { Lesson, LessonStep } from '@/types/content';
 
 export function LessonRoute() {
   const { id } = useParams<{ id: string }>();
@@ -33,7 +34,29 @@ export function LessonRoute() {
   // another reuses the same element position and React keeps the previous
   // lesson's step index and mistake count.
   if (!steps) return <PlaceholderLesson key={lesson.id} lesson={lesson} />;
-  return <LessonPlayer key={lesson.id} lesson={lesson} steps={steps} />;
+  return <PlayableLesson key={lesson.id} lesson={lesson} steps={steps} />;
+}
+
+function PlayableLesson({ lesson, steps }: { lesson: Lesson; steps: LessonStep[] }) {
+  const completeLesson = useProgressStore((s) => s.completeLesson);
+  const alreadyCompleted = useProgressStore((s) => Boolean(s.completed[lesson.id]));
+
+  return (
+    <LessonPlayer
+      unit={lesson}
+      steps={steps}
+      alreadyRewarded={alreadyCompleted}
+      onComplete={(stars) => {
+        completeLesson(lesson.id, stars);
+        // Quests watch real events rather than polling for them.
+        if (!alreadyCompleted) {
+          trackQuest('lessonsCompleted');
+          trackQuest('piEarned', lesson.rewardPi);
+        }
+        if (stars === 3) trackQuest('perfectLessons');
+      }}
+    />
+  );
 }
 
 /** Shown for lessons whose interactive content is not authored yet. */

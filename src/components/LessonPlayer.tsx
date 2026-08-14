@@ -9,10 +9,17 @@ import { PiPill } from '@/components/PiPill';
 import { checkAnswer, checkRoots } from '@/lib/answer';
 import { looksLikeMath } from '@/lib/format';
 import { usePlayerStore } from '@/store/playerStore';
-import { useProgressStore } from '@/store/progressStore';
-import type { Lesson, LessonStep } from '@/types/content';
+import type { LessonStep } from '@/types/content';
 
 type Result = { stars: number; pi: number; xp: number; rewarded: boolean };
+
+/** Anything the player can work through: a lesson or a project. */
+export interface PlayableUnit {
+  id: string;
+  title: string;
+  rewardPi: number;
+  rewardXp: number;
+}
 
 /** How many answer boxes a step needs (0 = not a typed step). */
 function fieldCount(step: LessonStep): number {
@@ -27,15 +34,30 @@ function fieldCount(step: LessonStep): number {
  * keyboard. Mistakes cost stars (3 → 1) and π/XP are awarded once, never on
  * replay of a completed lesson.
  */
-export function LessonPlayer({ lesson, steps }: { lesson: Lesson; steps: LessonStep[] }) {
+export function LessonPlayer({
+  unit,
+  steps,
+  alreadyRewarded,
+  onComplete,
+  backTo = '/',
+  completedLabel,
+}: {
+  unit: PlayableUnit;
+  steps: LessonStep[];
+  /** Already finished before, so π/XP must not be paid again. */
+  alreadyRewarded: boolean;
+  /** Records the result; the caller decides whether it is a lesson or project. */
+  onComplete: (stars: number) => void;
+  backTo?: string;
+  /** Headline on the result screen; defaults to the lesson wording. */
+  completedLabel?: string;
+}) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const earnPi = usePlayerStore((s) => s.earnPi);
   const addXp = usePlayerStore((s) => s.addXp);
   const registerActivity = usePlayerStore((s) => s.registerActivity);
-  const completeLesson = useProgressStore((s) => s.completeLesson);
-  const alreadyCompleted = useProgressStore((s) => Boolean(s.completed[lesson.id]));
 
   const [stepIndex, setStepIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -90,13 +112,13 @@ export function LessonPlayer({ lesson, steps }: { lesson: Lesson; steps: LessonS
     }
     const stars = Math.max(1, 3 - mistakes);
     let pi = 0;
-    if (!alreadyCompleted) {
-      pi = earnPi(lesson.rewardPi);
-      addXp(lesson.rewardXp);
+    if (!alreadyRewarded) {
+      pi = earnPi(unit.rewardPi);
+      addXp(unit.rewardXp);
       registerActivity();
     }
-    completeLesson(lesson.id, stars);
-    setResult({ stars, pi, xp: lesson.rewardXp, rewarded: !alreadyCompleted });
+    onComplete(stars);
+    setResult({ stars, pi, xp: unit.rewardXp, rewarded: !alreadyRewarded });
   };
 
   if (result) {
@@ -104,7 +126,7 @@ export function LessonPlayer({ lesson, steps }: { lesson: Lesson; steps: LessonS
       <div className="screen">
         <div className="result pop">
           <div className="result__stars">{'⭐'.repeat(result.stars)}</div>
-          <h1 className="result__headline">{t('lesson.completed')}</h1>
+          <h1 className="result__headline">{completedLabel ?? t('lesson.completed')}</h1>
           {result.rewarded ? (
             <div className="result__reward">
               {t('lesson.earned', { pi: result.pi, xp: result.xp })}
@@ -115,7 +137,7 @@ export function LessonPlayer({ lesson, steps }: { lesson: Lesson; steps: LessonS
           <MascotSays mood="proud">{t('lesson.encourageRight')}</MascotSays>
         </div>
         <div style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}>
-          <button type="button" className="btn btn--primary" onClick={() => navigate('/')}>
+          <button type="button" className="btn btn--primary" onClick={() => navigate(backTo)}>
             {t('common.continue')}
           </button>
         </div>
@@ -175,11 +197,11 @@ export function LessonPlayer({ lesson, steps }: { lesson: Lesson; steps: LessonS
             type="button"
             className="icon-btn"
             aria-label={t('common.back')}
-            onClick={() => navigate('/')}>
+            onClick={() => navigate(backTo)}>
             ←
           </button>
           <div className="grow" style={{ minWidth: 0 }}>
-            <div style={{ fontWeight: 800, fontSize: 17 }}>{lesson.title}</div>
+            <div style={{ fontWeight: 800, fontSize: 17 }}>{unit.title}</div>
             <div className="topbar__label">
               {t('lesson.counter', { index: stepIndex + 1, total: steps.length })}
             </div>

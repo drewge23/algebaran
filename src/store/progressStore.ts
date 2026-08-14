@@ -15,10 +15,13 @@ export interface LessonRecord {
 
 interface ProgressData {
   completed: Record<string, LessonRecord>;
+  /** Kept apart from lessons so project runs never inflate the lesson count. */
+  projects: Record<string, LessonRecord>;
 }
 
 interface ProgressActions {
   completeLesson: (id: string, stars?: number, timeMs?: number) => void;
+  completeProject: (id: string, stars?: number) => void;
   reset: () => void;
 }
 
@@ -28,6 +31,15 @@ export const useProgressStore = create<ProgressState>()(
   persist(
     (set) => ({
       completed: {},
+      projects: {},
+
+      completeProject: (id, stars = 3) =>
+        set((s) => ({
+          projects: {
+            ...s.projects,
+            [id]: { stars: Math.max(stars, s.projects[id]?.stars ?? 0) },
+          },
+        })),
 
       completeLesson: (id, stars = 1, timeMs) =>
         set((s) => {
@@ -47,13 +59,19 @@ export const useProgressStore = create<ProgressState>()(
           };
         }),
 
-      reset: () => set({ completed: {} }),
+      reset: () => set({ completed: {}, projects: {} }),
     }),
     {
       name: 'algebaran-progress',
-      version: 1,
+      version: 2,
       storage: persistStorage,
-      partialize: (s): ProgressData => ({ completed: s.completed }),
+      partialize: (s): ProgressData => ({ completed: s.completed, projects: s.projects }),
+      migrate: (persisted, version) => {
+        if (version < 2 && persisted && typeof persisted === 'object') {
+          return { projects: {}, ...(persisted as object) } as ProgressData;
+        }
+        return persisted as ProgressData;
+      },
     },
   ),
 );

@@ -33,19 +33,48 @@ by the mascot, **Professorson**.
 - **Soft currency only** — no real-money IAP. Shop, fortune cookies, unlockable
   keyboard keys and multipliers all run on earned π.
 
+## Accounts
+
+Profiles are **local to the device** (`store/authStore.ts`): registration,
+sign-in, switching and an optional 4-digit PIN, all in `localStorage`. This is
+deliberate — the audience is schoolchildren, and there is no backend, so we do
+not collect minors' credentials. **The PIN is a courtesy lock, not security**;
+never describe it as protection and never store anything sensitive in an account.
+
+Each account gets its own save slot. `store/accountScope.ts` re-points the game
+stores at `<base>:<accountId>` and rehydrates. **Never `reset()` before
+rehydrating** — `reset()` persists, so it would overwrite the account's save
+with empty state and the rehydrate would read the wiped version back.
+
+Swapping to hosted identity later means replacing `authStore` and the
+namespacing in `accountScope` — nothing else depends on how accounts are stored.
+
 ## Project layout (`src/`)
 
-- `routes/` — screens: `LessonMap` (home star map), `Lesson`, `Collect` (shop),
-  `Profile`, `Achievements`.
+- `routes/` — screens: `LessonMap` (home star map), `Lesson`, `Projects`,
+  `Quests`, `Duel`, `BeatTheClock`, `Collect` (shop), `Profile`, `Achievements`,
+  `Welcome` (registration / sign-in).
 - `components/` — `LessonPlayer` (the lesson engine), `EquationKeyboard`,
   `MathText`, `Mascot`/`MascotSays`, `PiPill`, `BottomNav`.
-- `store/` — Zustand: `playerStore` (economy/profile, π), `progressStore`
-  (lesson completion + stars).
+- `store/` — Zustand: `playerStore` (economy, π, duel rating), `progressStore`
+  (lessons + projects), `questStore`, `authStore`, `accountScope`.
 - `lib/` — **pure, unit-tested** logic: `economy` (XP/level/multiplier), `date`
-  (streak), `answer` (normalising checker), `format`, `random`. Keep impure calls
-  out of components.
+  (streak/month keys), `answer` (normalising checker + `checkRoots`), `duel`
+  (Elo + opponent simulation), `random` (incl. **seeded** PRNG), `format`,
+  `clock`. Keep impure calls out of components — reading `Date.now()` in a
+  component body trips React's purity lint, so use `lib/clock`.
 - `content/` — catalogues: `lessons` (sections + lessons), `lesson-steps`
-  (**the authoring seam** for interactive content), `shop`, `achievements`.
+  (**the authoring seam** for interactive content), `projects`, `quickfire`
+  (duel/timed question bank), `quests`, `shop`, `achievements`.
+
+## Quests
+
+Daily and monthly sets are drawn from pools in `content/quests.ts`, seeded by the
+date so the same day always yields the same quests (a fresh `Math.random()` would
+reroll them on every mount). Progress is pushed by `trackQuest(metric, amount)`
+from wherever the event happens — nothing polls. Add a metric to `QuestMetric`
+and call `trackQuest` at the event site.
+
 - `styles/index.css` — the whole design system (tokens + component classes).
 - `assets/professorson/` — mascot art, one file per mood.
 
