@@ -595,6 +595,19 @@ button {
   letter-spacing: 1px;
 }
 
+/* Exams are checkpoints, so they read as gold rather than another purple dot. */
+.node__dot--exam {
+  background: linear-gradient(180deg, #ffd977, var(--gold-deep));
+  border-color: var(--gold);
+  color: #4a3204;
+}
+
+.node__todo {
+  font-size: 9.5px;
+  color: var(--text-faint);
+  font-style: italic;
+}
+
 /* Section heading inside the map */
 .map-section {
   display: flex;
