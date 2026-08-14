@@ -6,6 +6,7 @@ import { MascotSays } from '@/components/Mascot';
 import { MathText } from '@/components/MathText';
 import { PiPill } from '@/components/PiPill';
 import { QUICKFIRE, type QuickQuestion } from '@/content/quickfire';
+import { now } from '@/lib/clock';
 import { shuffle } from '@/lib/random';
 import { usePlayerStore } from '@/store/playerStore';
 import { useProgressStore } from '@/store/progressStore';
@@ -49,6 +50,9 @@ export function BeatTheClock() {
 
   // Kept in a ref so the ticking effect never needs to re-subscribe.
   const endsAt = useRef(0);
+  // Mirrors `correct` so the timer can read the final score without going
+  // through a state updater (see the interval below).
+  const correctRef = useRef(0);
 
   const finish = useCallback(
     (finalCorrect: number) => {
@@ -73,10 +77,11 @@ export function BeatTheClock() {
     setQueue(shuffle(QUICKFIRE));
     setIndex(0);
     setCorrect(0);
+    correctRef.current = 0;
     setWrong(0);
     setFlash(null);
     setAwarded(0);
-    endsAt.current = Date.now() + ROUND_SECONDS * 1000;
+    endsAt.current = now() + ROUND_SECONDS * 1000;
     setMsLeft(ROUND_SECONDS * 1000);
     setPhase('playing');
   };
@@ -86,13 +91,13 @@ export function BeatTheClock() {
   useEffect(() => {
     if (phase !== 'playing') return;
     const id = setInterval(() => {
-      const remaining = endsAt.current - Date.now();
+      const remaining = endsAt.current - now();
       if (remaining <= 0) {
         setMsLeft(0);
-        setCorrect((c) => {
-          finish(c);
-          return c;
-        });
+        // Read the score from a ref: calling finish() inside a setState updater
+        // ran it during render, which then wrote to the player store and warned
+        // about updating one component while rendering another.
+        finish(correctRef.current);
       } else {
         setMsLeft(remaining);
       }
@@ -106,7 +111,8 @@ export function BeatTheClock() {
     const isRight = choiceIndex === question.correctIndex;
 
     if (isRight) {
-      setCorrect((c) => c + 1);
+      correctRef.current += 1;
+      setCorrect(correctRef.current);
       navigator.vibrate?.(10);
     } else {
       setWrong((w) => w + 1);

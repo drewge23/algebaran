@@ -20,8 +20,8 @@ export default tseslint.config(
     },
   },
   {
-    // Vite config runs in Node, not the browser.
-    files: ['vite.config.ts'],
+    // Config and tooling scripts run in Node, not the browser.
+    files: ['vite.config.ts', 'vitest.config.ts', 'scripts/**/*.{js,mjs,ts}'],
     languageOptions: { globals: globals.node },
   },
 );
