@@ -628,11 +628,11 @@ button {
   color: var(--primary-soft);
 }
 
-/* ---------- Worlds ---------- */
+/* ---------- Star systems ---------- */
 
 /* Horizontal pager. Scroll-snap keeps it a plain scroll container, so touch,
    trackpad and keyboard all work without a carousel library. */
-.world-track {
+.system-track {
   display: flex;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -641,11 +641,11 @@ button {
   padding: var(--space-3) var(--space-4) var(--space-4);
 }
 
-.world-track::-webkit-scrollbar {
+.system-track::-webkit-scrollbar {
   display: none;
 }
 
-.world {
+.system {
   scroll-snap-align: center;
   flex: 0 0 86%;
   display: flex;
@@ -659,53 +659,53 @@ button {
   border: 1px solid rgba(155, 123, 255, 0.28);
 }
 
-.world--locked {
+.system--locked {
   background: linear-gradient(180deg, rgba(35, 39, 68, 0.6), rgba(16, 20, 48, 0.85));
   border-color: rgba(255, 255, 255, 0.07);
   opacity: 0.72;
 }
 
-.world__planet {
+.system__planet {
   font-size: 84px;
   line-height: 1.1;
   filter: drop-shadow(0 10px 26px rgba(124, 77, 255, 0.45));
 }
 
-.world__title {
+.system__title {
   font-size: 26px;
   font-weight: 800;
   margin: var(--space-2) 0 0;
 }
 
-.world__blurb {
+.system__blurb {
   color: var(--text-dim);
   font-size: 14px;
   margin: 0;
   max-width: 22em;
 }
 
-.world__stats {
+.system__stats {
   font-size: 13px;
   font-weight: 700;
   color: var(--gold);
   margin-top: var(--space-2);
 }
 
-.world__cta {
+.system__cta {
   margin-top: var(--space-3);
   width: auto;
   padding-inline: var(--space-5);
 }
 
-.world__locked-note {
+.system__locked-note {
   margin-top: var(--space-3);
   font-size: 13px;
   color: var(--text-faint);
 }
 
-/* ---------- World SVG map ---------- */
+/* ---------- Planet map ---------- */
 
-.worldmap {
+.planetmap {
   width: 100%;
   height: auto;
   display: block;
@@ -713,79 +713,99 @@ button {
   overflow: visible;
 }
 
-.worldmap__route {
+.planetmap__route {
   fill: none;
-  stroke: rgba(155, 123, 255, 0.45);
+  stroke: rgba(155, 123, 255, 0.4);
   stroke-width: 2.5;
-  stroke-dasharray: 7 11;
+  stroke-dasharray: 6 12;
   stroke-linecap: round;
 }
 
-.worldmap__island {
+.planetmap__planet {
   cursor: pointer;
   transition: transform 0.16s ease;
   transform-box: fill-box;
   transform-origin: center;
 }
 
-.worldmap__island--locked {
+.planetmap__planet--locked {
   cursor: default;
 }
 
-.worldmap__island:not(.worldmap__island--locked):active {
+.planetmap__planet:not(.planetmap__planet--locked):active {
   transform: scale(0.95);
 }
 
-.worldmap__island:focus-visible {
+.planetmap__planet:focus-visible {
   outline: none;
 }
 
-.worldmap__island:focus-visible .worldmap__shape {
+.planetmap__planet:focus-visible .planetmap__body {
   stroke: var(--gold);
   stroke-width: 3;
 }
 
-.worldmap__shape {
-  transition: filter 0.25s ease;
+/* The reachable planet breathes, so the eye lands on where to go next. */
+.planetmap__planet--open .planetmap__body {
+  animation: planet-pulse 3s ease-in-out infinite;
 }
 
-/* The reachable region breathes, so the eye lands on where to go next. */
-.worldmap__island--open .worldmap__shape {
-  animation: island-pulse 2.8s ease-in-out infinite;
-}
-
-@keyframes island-pulse {
+@keyframes planet-pulse {
   0%,
   100% {
-    opacity: 0.92;
+    opacity: 0.94;
   }
   50% {
     opacity: 1;
   }
 }
 
-.worldmap__island--locked .worldmap__shape {
-  opacity: 0.55;
+.planetmap__planet--locked .planetmap__body {
+  opacity: 0.6;
 }
 
-.worldmap__glyph {
-  font-size: 34px;
+.planetmap__mark {
+  fill: rgba(0, 0, 0, 0.16);
+  pointer-events: none;
+}
+
+.planetmap__planet--locked .planetmap__mark {
+  fill: rgba(0, 0, 0, 0.28);
+}
+
+.planetmap__ring {
+  fill: none;
+  stroke: rgba(242, 178, 55, 0.55);
+  stroke-width: 3;
+  pointer-events: none;
+}
+
+.planetmap__planet--locked .planetmap__ring {
+  stroke: rgba(255, 255, 255, 0.12);
+}
+
+.planetmap__planet--done .planetmap__ring {
+  stroke: rgba(74, 222, 128, 0.5);
+}
+
+.planetmap__glyph {
+  font-size: 30px;
   dominant-baseline: middle;
   pointer-events: none;
 }
 
-.worldmap__title {
+.planetmap__title {
   font-size: 15px;
   font-weight: 800;
   fill: var(--text);
   pointer-events: none;
 }
 
-.worldmap__island--locked .worldmap__title {
+.planetmap__planet--locked .planetmap__title {
   fill: var(--text-faint);
 }
 
-.worldmap__count {
+.planetmap__count {
   font-size: 12px;
   font-weight: 700;
   fill: var(--gold);
@@ -1769,4 +1789,231 @@ button {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* ---------- Workshop (Projects) ---------- */
+
+/* Deliberately unlike the curriculum: the ship is the page, and the controls
+   sit around it rather than competing with it. */
+.hangar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-3) 0 var(--space-4);
+}
+
+.rocket {
+  width: min(58%, 220px);
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 18px 40px rgba(124, 77, 255, 0.28));
+}
+
+/* Unbuilt parts are ghosted outlines, so the ship reads as incomplete rather
+   than absent — you can see what you are working toward. */
+.rocket__part {
+  opacity: 0.16;
+  transition:
+    opacity 0.45s ease,
+    filter 0.45s ease;
+}
+
+.rocket__part--on {
+  opacity: 1;
+}
+
+.rocket__fill-body {
+  fill: url(#r-hull);
+  stroke: rgba(255, 255, 255, 0.35);
+  stroke-width: 1.5;
+}
+.rocket__fill-nose {
+  fill: url(#r-nose);
+  stroke: rgba(185, 163, 255, 0.6);
+  stroke-width: 1.5;
+}
+.rocket__fill-metal {
+  fill: #6f74a0;
+  stroke: rgba(255, 255, 255, 0.28);
+  stroke-width: 1.5;
+}
+.rocket__fill-hull {
+  fill: #8e93bd;
+  stroke: rgba(255, 255, 255, 0.28);
+  stroke-width: 1.5;
+}
+.rocket__fill-accent {
+  fill: var(--gold);
+  opacity: 0.85;
+}
+.rocket__window {
+  fill: #0a0d24;
+  stroke: var(--gold);
+  stroke-width: 3;
+}
+
+.rocket__part--on .rocket__flame {
+  animation: flame 0.5s ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: top center;
+}
+
+@keyframes flame {
+  from {
+    transform: scaleY(0.9) scaleX(0.94);
+  }
+  to {
+    transform: scaleY(1.08) scaleX(1.02);
+  }
+}
+
+.hangar__status {
+  margin-top: var(--space-3);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.03em;
+}
+
+.mission-card {
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-card);
+}
+
+.mission-card__kicker {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary-deep);
+}
+
+.mission-card__title {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 6px 0 8px;
+}
+
+.mission-card__story {
+  font-size: 14.5px;
+  line-height: 1.5;
+  margin: 0;
+  color: var(--ink);
+}
+
+.mission-card__objective {
+  font-size: 14px;
+  font-weight: 700;
+  margin: var(--space-3) 0 0;
+  color: var(--ink);
+}
+
+.mission-card__reward {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--paper-edge);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold-deep);
+}
+
+.system-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+.sys-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: var(--text);
+  text-align: left;
+}
+
+.sys-tile--open {
+  border-color: rgba(155, 123, 255, 0.4);
+}
+
+.sys-tile--done {
+  border-color: rgba(74, 222, 128, 0.4);
+}
+
+.sys-tile--locked {
+  opacity: 0.5;
+}
+
+.sys-tile__glyph {
+  font-size: 24px;
+}
+
+.sys-tile__name {
+  font-size: 14.5px;
+  font-weight: 800;
+}
+
+.sys-tile__pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.sys-tile--done .sys-tile__pct {
+  color: var(--green);
+}
+
+.sys-tile__bar {
+  display: block;
+  width: 100%;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-locked);
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.sys-tile__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--primary), var(--primary-soft));
+}
+
+.sys-tile--done .sys-tile__fill {
+  background: var(--green-deep);
+}
+
+.mission-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  text-align: left;
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: var(--text);
+}
+
+.mission-row--done {
+  border-color: rgba(74, 222, 128, 0.35);
+}
+
+.mission-row:disabled {
+  opacity: 0.5;
+}
+
+.hangar__sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-faint);
 }

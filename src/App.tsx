@@ -7,11 +7,11 @@ import { BeatTheClock } from '@/routes/BeatTheClock';
 import { Collect } from '@/routes/Collect';
 import { Duel } from '@/routes/Duel';
 import { LessonRoute } from '@/routes/Lesson';
-import { RegionScreen } from '@/routes/RegionScreen';
-import { WorldMap } from '@/routes/WorldMap';
-import { Worlds } from '@/routes/Worlds';
+import { PlanetScreen } from '@/routes/PlanetScreen';
+import { SystemScreen } from '@/routes/SystemScreen';
+import { Systems } from '@/routes/Systems';
 import { Profile } from '@/routes/Profile';
-import { ProjectList, ProjectRoute } from '@/routes/Projects';
+import { MissionRoute, SystemWorkshop, Workshop } from '@/routes/Workshop';
 import { Quests } from '@/routes/Quests';
 import { Welcome } from '@/routes/Welcome';
 import { bindStoresToAccount } from '@/store/accountScope';
@@ -34,7 +34,7 @@ export function App() {
 /**
  * Puts the learner back where they left off, once per app launch.
  *
- * Only fires when landing on the world selector with a position remembered, so
+ * Only fires when landing on the system selector with a position remembered, so
  * navigating *back* to the selector deliberately stays there — the back button
  * clears the memory, which is what stops this from trapping anyone.
  */
@@ -100,11 +100,12 @@ function AuthGate() {
     <div className="app">
       <RestoreLastPlace />
       <Routes>
-        <Route path="/" element={<Worlds />} />
-        <Route path="/world/:worldId" element={<WorldMap />} />
-        <Route path="/region/:regionId" element={<RegionScreen />} />
-        <Route path="/projects" element={<ProjectList />} />
-        <Route path="/projects/:id" element={<ProjectRoute />} />
+        <Route path="/" element={<Systems />} />
+        <Route path="/system/:systemId" element={<SystemScreen />} />
+        <Route path="/planet/:planetId" element={<PlanetScreen />} />
+        <Route path="/projects" element={<Workshop />} />
+        <Route path="/projects/system/:systemId" element={<SystemWorkshop />} />
+        <Route path="/projects/mission/:missionId" element={<MissionRoute />} />
         <Route path="/quests" element={<Quests />} />
         <Route path="/collect" element={<Collect />} />
         <Route path="/profile" element={<Profile />} />

@@ -1,5 +1,5 @@
 /**
- * Curriculum structure: Worlds → Sections → Levels → (steps).
+ * Curriculum structure: Systems → Sections → Levels → (steps).
  *
  * The shape matters as much as the content. A learner should never meet a wall
  * of 130 levels; each screen shows exactly one layer, and lessons alternate
@@ -20,22 +20,22 @@ export type LevelKind =
 /** Sections are grouped so bonus routes read as optional side-paths. */
 export type SectionKind = 'core' | 'practice' | 'bonus' | 'apply' | 'hard' | 'olympiad' | 'exam';
 
-export interface World {
+export interface StarSystem {
   id: string;
   title: string;
   blurb: string;
-  /** Large central illustration stand-in until world art exists. */
+  /** Large central illustration stand-in until system art exists. */
   glyph: string;
   order: number;
-  /** Worlds beyond the first are planned but not yet authored. */
+  /** Systems beyond the first are planned but not yet authored. */
   available: boolean;
-  /** Shown on a locked world instead of progress. */
+  /** Shown on a locked system instead of progress. */
   unlockNote?: string;
 }
 
 export interface Section {
   id: string;
-  worldId: string;
+  systemId: string;
   title: string;
   blurb: string;
   glyph: string;

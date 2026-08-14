@@ -12,16 +12,14 @@ const TABS = [
 ] as const;
 
 /** Full-screen flows that need the whole viewport (and the keyboard's room). */
-const IMMERSIVE = ['/lesson/', '/beat-the-clock', '/duel'];
+const IMMERSIVE = ['/lesson/', '/beat-the-clock', '/duel', '/projects/mission/'];
 
 export function BottomNav() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const claimable = useQuestStore(selectClaimable);
 
-  const immersive =
-    IMMERSIVE.some((p) => pathname.startsWith(p)) || /^\/projects\/.+/.test(pathname);
-  if (immersive) return null;
+  if (IMMERSIVE.some((p) => pathname.startsWith(p))) return null;
 
   return (
     <nav className="nav">

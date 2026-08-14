@@ -111,7 +111,13 @@ insert into public.rewards (kind, item_id, reward_pi, reward_xp) values
   ('lesson', 'q16-4', 80, 150),
   ('lesson', 'q16-5', 80, 150),
   ('lesson', 'q16-6', 80, 150),
-  ('project', 'rescue-flare', 120, 200)
+  ('project', 'm-hull-1', 25, 40),
+  ('project', 'm-fuel-1', 25, 40),
+  ('project', 'm-engine-1', 40, 70),
+  ('project', 'm-nav-1', 40, 70),
+  ('project', 'm-guid-1', 40, 70),
+  ('project', 'm-guid-2', 40, 70),
+  ('project', 'm-launch-1', 80, 150)
 on conflict (kind, item_id) do update
   set reward_pi = excluded.reward_pi, reward_xp = excluded.reward_xp;
 

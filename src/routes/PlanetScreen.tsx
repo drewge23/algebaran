@@ -3,10 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { PiPill } from '@/components/PiPill';
 import {
-  getRegion,
+  getPlanet,
   getSection,
-  getWorld,
-  levelsOfRegion,
+  getSystem,
+  levelsOfPlanet,
   levelsOfSection,
 } from '@/content/curriculum';
 import { stepsForLesson } from '@/content/lesson-steps';
@@ -32,19 +32,19 @@ const KIND_ICON: Partial<Record<Level['kind'], string>> = {
 const LANES = ['c', 'r', 'c', 'l'] as const;
 
 /**
- * The level map for one region: nodes on a winding path, grouped under their
- * section headings. A region can hold seventeen levels, and the headings are
+ * The level map for one planet: nodes on a winding path, grouped under their
+ * section headings. A planet can hold seventeen levels, and the headings are
  * what stop that becoming an undifferentiated string of dots.
  */
-export function RegionScreen() {
+export function PlanetScreen() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { regionId } = useParams<{ regionId: string }>();
+  const { planetId } = useParams<{ planetId: string }>();
   const completed = useProgressStore((s) => s.completed);
   const remember = useNavMemory((s) => s.remember);
 
-  const region = regionId ? getRegion(regionId) : undefined;
-  if (!region) {
+  const planet = planetId ? getPlanet(planetId) : undefined;
+  if (!planet) {
     return (
       <div className="screen">
         <div className="result">
@@ -57,14 +57,14 @@ export function RegionScreen() {
     );
   }
 
-  const world = getWorld(region.worldId);
-  const { done, total } = tally(completed, levelsOfRegion(region));
+  const system = getSystem(planet.systemId);
+  const { done, total } = tally(completed, levelsOfPlanet(planet));
 
   const goUp = () => {
     // Stepping back up also forgets the deeper position, otherwise the
     // restore-on-open would drag the learner straight back down here.
-    remember({ worldId: region.worldId, regionId: null });
-    navigate(`/world/${region.worldId}`);
+    remember({ systemId: planet.systemId, planetId: null });
+    navigate(`/system/${planet.systemId}`);
   };
 
   return (
@@ -74,23 +74,23 @@ export function RegionScreen() {
           ←
         </button>
         <div className="grow" style={{ minWidth: 0 }}>
-          <div style={{ fontWeight: 800, fontSize: 17 }}>{region.title}</div>
+          <div style={{ fontWeight: 800, fontSize: 17 }}>{planet.title}</div>
           <div className="topbar__label">
-            {world?.title} · {done}/{total}
+            {system?.title} · {done}/{total}
           </div>
         </div>
         <PiPill />
       </div>
 
       <p className="screen__sub" style={{ marginTop: 8 }}>
-        {region.blurb}
+        {planet.blurb}
       </p>
 
       <div className="bar" style={{ marginTop: 12 }}>
         <div className="bar__fill" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
       </div>
 
-      {region.sectionIds.map((sectionId) => {
+      {planet.sectionIds.map((sectionId) => {
         const section = getSection(sectionId);
         const levels = levelsOfSection(sectionId);
         if (!section || levels.length === 0) return null;

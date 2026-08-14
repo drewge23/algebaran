@@ -5,7 +5,7 @@ import { LessonPlayer } from '@/components/LessonPlayer';
 import { MascotSays } from '@/components/Mascot';
 import { PiPill } from '@/components/PiPill';
 import { stepsForLesson } from '@/content/lesson-steps';
-import { getLevel, regionOfSection } from '@/content/curriculum';
+import { getLevel, planetOfSection } from '@/content/curriculum';
 import { usePlayerStore } from '@/store/playerStore';
 import { useProgressStore } from '@/store/progressStore';
 import { trackQuest } from '@/store/questStore';
@@ -46,7 +46,7 @@ function PlayableLesson({ lesson, steps }: { lesson: Level; steps: LessonStep[] 
     <LessonPlayer
       unit={lesson}
       steps={steps}
-      backTo={regionOfSection(lesson.sectionId) ?? '/'}
+      backTo={planetOfSection(lesson.sectionId) ?? '/'}
       alreadyRewarded={alreadyCompleted}
       onComplete={(stars) => {
         completeLesson(lesson.id, stars);
@@ -73,8 +73,8 @@ function PlaceholderLesson({ lesson }: { lesson: Level }) {
   const alreadyCompleted = useProgressStore((s) => Boolean(s.completed[lesson.id]));
 
   // Finishing or leaving returns to the map this level sits on, never the home
-  // screen — being thrown back to the world selector loses the learner's place.
-  const backTo = regionOfSection(lesson.sectionId) ?? '/';
+  // screen — being thrown back to the system selector loses the learner's place.
+  const backTo = planetOfSection(lesson.sectionId) ?? '/';
 
   const complete = () => {
     if (!alreadyCompleted) {

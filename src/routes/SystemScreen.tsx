@@ -4,31 +4,31 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { MascotSays } from '@/components/Mascot';
 import { PiPill } from '@/components/PiPill';
-import { WorldSvgMap } from '@/components/WorldSvgMap';
-import { getWorld, levelsOfWorld, regionsOfWorld } from '@/content/curriculum';
+import { PlanetMap } from '@/components/PlanetMap';
+import { getSystem, levelsOfSystem, planetsOfSystem } from '@/content/curriculum';
 import { useNavMemory } from '@/store/navStore';
 import { tally, useProgressStore } from '@/store/progressStore';
 
 /**
- * One world, drawn as a map of glowing islands. Each island is a region — a
- * cluster of sections — so a world reads as a handful of landmarks rather than a
+ * One system, drawn as a map of glowing islands. Each island is a planet — a
+ * cluster of sections — so a system reads as a handful of landmarks rather than a
  * list of every section it contains.
  */
-export function WorldMap() {
+export function SystemScreen() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { worldId } = useParams<{ worldId: string }>();
+  const { systemId } = useParams<{ systemId: string }>();
   const completed = useProgressStore((s) => s.completed);
   const remember = useNavMemory((s) => s.remember);
 
-  const world = worldId ? getWorld(worldId) : undefined;
+  const system = systemId ? getSystem(systemId) : undefined;
 
-  // Remember the world so the next visit opens here instead of the selector.
+  // Remember the system so the next visit opens here instead of the selector.
   useEffect(() => {
-    if (world) remember({ worldId: world.id, regionId: null });
-  }, [world, remember]);
+    if (system) remember({ systemId: system.id, planetId: null });
+  }, [system, remember]);
 
-  if (!world) {
+  if (!system) {
     return (
       <div className="screen">
         <div className="result">
@@ -41,12 +41,12 @@ export function WorldMap() {
     );
   }
 
-  const regions = regionsOfWorld(world.id);
-  const { done, total } = tally(completed, levelsOfWorld(world.id));
+  const planets = planetsOfSystem(system.id);
+  const { done, total } = tally(completed, levelsOfSystem(system.id));
 
   const goUp = () => {
-    // Explicit back is the one way out to the selector, so forget this world.
-    remember({ worldId: null, regionId: null });
+    // Explicit back is the one way out to the selector, so forget this system.
+    remember({ systemId: null, planetId: null });
     navigate('/');
   };
 
@@ -57,8 +57,8 @@ export function WorldMap() {
           ←
         </button>
         <div className="grow">
-          <div className="topbar__eyebrow">{world.title}</div>
-          <div className="topbar__label">{t('worlds.progress', { done, total })}</div>
+          <div className="topbar__eyebrow">{system.title}</div>
+          <div className="topbar__label">{t('systems.progress', { done, total })}</div>
         </div>
         <PiPill />
       </div>
@@ -67,14 +67,14 @@ export function WorldMap() {
         <div className="bar__fill" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
       </div>
 
-      <MascotSays mood="happy">{t('worlds.sectionsMascot')}</MascotSays>
+      <MascotSays mood="happy">{t('systems.sectionsMascot')}</MascotSays>
 
-      <WorldSvgMap
-        regions={regions}
+      <PlanetMap
+        planets={planets}
         completed={completed}
-        onOpen={(region) => {
-          remember({ worldId: world.id, regionId: region.id });
-          navigate(`/region/${region.id}`);
+        onOpen={(planet) => {
+          remember({ systemId: system.id, planetId: planet.id });
+          navigate(`/planet/${planet.id}`);
         }}
       />
     </div>

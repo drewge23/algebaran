@@ -4,12 +4,12 @@ import {
   LEVELS,
   ORDERED_LEVELS,
   SECTIONS,
-  WORLDS,
+  SYSTEMS,
   getSection,
   levelsOfSection,
-  levelsOfWorld,
-  sectionsOfWorld,
-  spineOfWorld,
+  levelsOfSystem,
+  sectionsOfSystem,
+  spineOfSystem,
 } from '@/content/curriculum';
 import { statusForLevel } from '@/store/progressStore';
 import { LESSON_STEPS } from '@/content/lesson-steps';
@@ -36,9 +36,9 @@ describe('curriculum structure', () => {
     expect(orphans.map((o) => o.id)).toEqual([]);
   });
 
-  test('every section belongs to a real world', () => {
-    const worldIds = new Set(WORLDS.map((w) => w.id));
-    const orphans = SECTIONS.filter((s) => !worldIds.has(s.worldId));
+  test('every section belongs to a real system', () => {
+    const systemIds = new Set(SYSTEMS.map((w) => w.id));
+    const orphans = SECTIONS.filter((s) => !systemIds.has(s.systemId));
     expect(orphans.map((o) => o.id)).toEqual([]);
   });
 
@@ -47,15 +47,15 @@ describe('curriculum structure', () => {
     expect(empty.map((s) => s.id)).toEqual([]);
   });
 
-  test('every available world has content', () => {
-    for (const world of WORLDS.filter((w) => w.available)) {
-      expect(sectionsOfWorld(world.id).length).toBeGreaterThan(0);
-      expect(levelsOfWorld(world.id).length).toBeGreaterThan(0);
+  test('every available system has content', () => {
+    for (const system of SYSTEMS.filter((w) => w.available)) {
+      expect(sectionsOfSystem(system.id).length).toBeGreaterThan(0);
+      expect(levelsOfSystem(system.id).length).toBeGreaterThan(0);
     }
   });
 
-  test('the spine covers exactly the available worlds', () => {
-    const expected = WORLDS.filter((w) => w.available).flatMap((w) => levelsOfWorld(w.id));
+  test('the spine covers exactly the available systems', () => {
+    const expected = SYSTEMS.filter((w) => w.available).flatMap((w) => levelsOfSystem(w.id));
     expect(ORDERED_LEVELS.map((l) => l.id)).toEqual(expected.map((l) => l.id));
   });
 
@@ -68,29 +68,29 @@ describe('curriculum structure', () => {
 });
 
 describe('unlocking', () => {
-  test('each available world opens at its own first level', () => {
-    for (const world of WORLDS.filter((w) => w.available)) {
-      const first = spineOfWorld(world.id)[0];
-      expect(statusForLevel({}, first), world.id).toBe('available');
+  test('each available system opens at its own first level', () => {
+    for (const system of SYSTEMS.filter((w) => w.available)) {
+      const first = spineOfSystem(system.id)[0];
+      expect(statusForLevel({}, first), system.id).toBe('available');
     }
   });
 
   test('optional Foundations does not gate the quadratics course', () => {
     // With nothing completed anywhere, the first quadratics level must still be
     // reachable — Foundations is preparation, not a prerequisite.
-    const firstQuadratic = spineOfWorld('quadratics')[0];
+    const firstQuadratic = spineOfSystem('quadratics')[0];
     expect(statusForLevel({}, firstQuadratic)).toBe('available');
   });
 
   test('later levels stay locked until the previous one is done', () => {
-    const spine = spineOfWorld('quadratics');
+    const spine = spineOfSystem('quadratics');
     expect(statusForLevel({}, spine[1])).toBe('locked');
     expect(statusForLevel({ [spine[0].id]: { stars: 3 } }, spine[1])).toBe('available');
   });
 
-  test('progress in one world does not unlock another', () => {
-    const quadratics = spineOfWorld('quadratics');
-    const foundations = spineOfWorld('foundations');
+  test('progress in one system does not unlock another', () => {
+    const quadratics = spineOfSystem('quadratics');
+    const foundations = spineOfSystem('foundations');
     const done = Object.fromEntries(quadratics.map((l) => [l.id, { stars: 3 }]));
     // Foundations opens at its own first level regardless, but its second must
     // still require its own predecessor.

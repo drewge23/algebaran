@@ -4,7 +4,7 @@ import {
   type LevelKind,
   type Section,
   type SectionKind,
-  type World,
+  type StarSystem,
 } from '@/types/curriculum';
 
 /**
@@ -16,7 +16,7 @@ import {
  * authored steps in `lesson-steps.ts` and the server's `rewards` table.
  */
 
-export const WORLDS: World[] = [
+export const SYSTEMS: StarSystem[] = [
   {
     id: 'foundations',
     title: 'Foundations',
@@ -40,7 +40,7 @@ export const WORLDS: World[] = [
     glyph: '📈',
     order: 3,
     available: false,
-    unlockNote: 'Charting this world next.',
+    unlockNote: 'Charting this system next.',
   },
   {
     id: 'systems',
@@ -87,10 +87,10 @@ const SECTION_SPECS: Record<string, SectionSpec[]> = {
   ],
 };
 
-export const SECTIONS: Section[] = Object.entries(SECTION_SPECS).flatMap(([worldId, specs]) =>
+export const SECTIONS: Section[] = Object.entries(SECTION_SPECS).flatMap(([systemId, specs]) =>
   specs.map(([id, title, blurb, glyph, kind], i) => ({
     id,
-    worldId,
+    systemId,
     title,
     blurb,
     glyph,
@@ -100,15 +100,15 @@ export const SECTIONS: Section[] = Object.entries(SECTION_SPECS).flatMap(([world
 );
 
 /**
- * Map regions — the "parts" of a world that light up on the SVG map.
+ * Map planets — the "parts" of a system that light up on the SVG map.
  *
- * A region gathers one or more sections into a single landmark. Sixteen glowing
+ * A planet gathers one or more sections into a single landmark. Sixteen glowing
  * islands would be a wall of detail; six reads as a journey. Foundations is one
- * region because it is one section.
+ * planet because it is one section.
  */
-export interface MapRegion {
+export interface Planet {
   id: string;
-  worldId: string;
+  systemId: string;
   title: string;
   blurb: string;
   glyph: string;
@@ -116,7 +116,7 @@ export interface MapRegion {
   order: number;
 }
 
-const REGION_SPECS: Record<string, [string, string, string, string, string[]][]> = {
+const PLANET_SPECS: Record<string, [string, string, string, string, string[]][]> = {
   foundations: [['r-f', 'Base Camp', 'Everything the rest stands on.', '🧱', ['f']]],
   quadratics: [
     [
@@ -140,16 +140,22 @@ const REGION_SPECS: Record<string, [string, string, string, string, string[]][]>
       '🧭',
       ['q8', 'q9', 'q10'],
     ],
-    ['r-q-world', 'The Real World', 'Vertices, shapes and applications.', '🌉', ['q11', 'q12']],
+    [
+      'r-q-system',
+      'The Real StarSystem',
+      'Vertices, shapes and applications.',
+      '🌉',
+      ['q11', 'q12'],
+    ],
     ['r-q-mastery', 'The Proving Ground', 'Everything, mixed.', '🎯', ['q13']],
     ['r-q-summit', 'The Summit', 'Hard problems, olympiad, exams.', '🏔️', ['q14', 'q15', 'q16']],
   ],
 };
 
-export const REGIONS: MapRegion[] = Object.entries(REGION_SPECS).flatMap(([worldId, specs]) =>
+export const PLANETS: Planet[] = Object.entries(PLANET_SPECS).flatMap(([systemId, specs]) =>
   specs.map(([id, title, blurb, glyph, sectionIds], i) => ({
     id,
-    worldId,
+    systemId,
     title,
     blurb,
     glyph,
@@ -158,18 +164,18 @@ export const REGIONS: MapRegion[] = Object.entries(REGION_SPECS).flatMap(([world
   })),
 );
 
-export const getRegion = (id: string) => REGIONS.find((r) => r.id === id);
+export const getPlanet = (id: string) => PLANETS.find((r) => r.id === id);
 
-export const regionsOfWorld = (worldId: string) =>
-  REGIONS.filter((r) => r.worldId === worldId).sort((a, b) => a.order - b.order);
+export const planetsOfSystem = (systemId: string) =>
+  PLANETS.filter((r) => r.systemId === systemId).sort((a, b) => a.order - b.order);
 
-export const levelsOfRegion = (region: MapRegion) =>
-  region.sectionIds.flatMap((id) => levelsOfSection(id));
+export const levelsOfPlanet = (planet: Planet) =>
+  planet.sectionIds.flatMap((id) => levelsOfSection(id));
 
-/** Route back to the map region containing a section — used by lesson back-links. */
-export const regionOfSection = (sectionId: string): string | undefined => {
-  const region = REGIONS.find((r) => r.sectionIds.includes(sectionId));
-  return region ? `/region/${region.id}` : undefined;
+/** Route back to the map planet containing a section — used by lesson back-links. */
+export const planetOfSection = (sectionId: string): string | undefined => {
+  const planet = PLANETS.find((r) => r.sectionIds.includes(sectionId));
+  return planet ? `/planet/${planet.id}` : undefined;
 };
 
 /** [id, title, subtitle, kind?] — kind defaults per section below. */
@@ -424,36 +430,36 @@ export const LEVELS: Level[] = Object.entries(LEVEL_SPECS).flatMap(
 
 // --- lookups ---------------------------------------------------------------
 
-export const getWorld = (id: string) => WORLDS.find((w) => w.id === id);
+export const getSystem = (id: string) => SYSTEMS.find((w) => w.id === id);
 export const getSection = (id: string) => SECTIONS.find((s) => s.id === id);
 export const getLevel = (id: string) => LEVELS.find((l) => l.id === id);
 
-export const sectionsOfWorld = (worldId: string) =>
-  SECTIONS.filter((s) => s.worldId === worldId).sort((a, b) => a.order - b.order);
+export const sectionsOfSystem = (systemId: string) =>
+  SECTIONS.filter((s) => s.systemId === systemId).sort((a, b) => a.order - b.order);
 
 export const levelsOfSection = (sectionId: string) =>
   LEVELS.filter((l) => l.sectionId === sectionId).sort((a, b) => a.order - b.order);
 
-export const levelsOfWorld = (worldId: string) =>
-  sectionsOfWorld(worldId).flatMap((s) => levelsOfSection(s.id));
+export const levelsOfSystem = (systemId: string) =>
+  sectionsOfSystem(systemId).flatMap((s) => levelsOfSection(s.id));
 
 /**
- * Each world has its own ordered spine, and unlocking walks *that* — not one
+ * Each system has its own ordered spine, and unlocking walks *that* — not one
  * global list. Foundations is explicitly optional (Stage 0, for learners who
- * want the run-up), so it must never gate the quadratics course. Within a world
+ * want the run-up), so it must never gate the quadratics course. Within a system
  * the order still runs straight through section boundaries, so there is always
  * exactly one next level.
  */
 const SPINES = new Map<string, Level[]>(
-  WORLDS.filter((w) => w.available).map((w) => [w.id, levelsOfWorld(w.id)]),
+  SYSTEMS.filter((w) => w.available).map((w) => [w.id, levelsOfSystem(w.id)]),
 );
 
-export const worldIdOfLevel = (level: Level): string | undefined =>
-  getSection(level.sectionId)?.worldId;
+export const systemIdOfLevel = (level: Level): string | undefined =>
+  getSection(level.sectionId)?.systemId;
 
-export const spineOfWorld = (worldId: string): Level[] => SPINES.get(worldId) ?? [];
+export const spineOfSystem = (systemId: string): Level[] => SPINES.get(systemId) ?? [];
 
-/** Every level in every available world, worlds in order. */
-export const ORDERED_LEVELS: Level[] = WORLDS.filter((w) => w.available)
+/** Every level in every available system, systems in order. */
+export const ORDERED_LEVELS: Level[] = SYSTEMS.filter((w) => w.available)
   .sort((a, b) => a.order - b.order)
-  .flatMap((w) => levelsOfWorld(w.id));
+  .flatMap((w) => levelsOfSystem(w.id));

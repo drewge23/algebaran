@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { spineOfWorld, worldIdOfLevel } from '@/content/curriculum';
+import { spineOfSystem, systemIdOfLevel } from '@/content/curriculum';
 import type { Level } from '@/types/curriculum';
 
 import { persistStorage } from './storage';
@@ -82,10 +82,10 @@ export const selectCompletedCount = (s: ProgressState): number => Object.keys(s.
 
 /**
  * Unlock rule: a level is `completed` if recorded, `available` if it is the
- * first level *of its world* or the previous one on that world's spine is done,
+ * first level *of its system* or the previous one on that system's spine is done,
  * otherwise `locked`.
  *
- * Unlocking is per-world on purpose. Foundations is optional preparation, so
+ * Unlocking is per-system on purpose. Foundations is optional preparation, so
  * requiring it before the quadratics course would wall off the actual subject
  * behind ten levels of arithmetic.
  */
@@ -94,19 +94,19 @@ export function statusForLevel(
   level: Level,
 ): LessonStatus {
   if (completed[level.id]) return 'completed';
-  const worldId = worldIdOfLevel(level);
-  const spine = worldId ? spineOfWorld(worldId) : [];
+  const systemId = systemIdOfLevel(level);
+  const spine = systemId ? spineOfSystem(systemId) : [];
   const idx = spine.findIndex((l) => l.id === level.id);
   if (idx <= 0) return 'available';
   return completed[spine[idx - 1].id] ? 'available' : 'locked';
 }
 
-/** The next unfinished level within a world. */
-export function nextLevelInWorld(
+/** The next unfinished level within a system. */
+export function nextLevelInStarSystem(
   completed: Record<string, LessonRecord>,
-  worldId: string,
+  systemId: string,
 ): Level | undefined {
-  return spineOfWorld(worldId).find((l) => !completed[l.id]);
+  return spineOfSystem(systemId).find((l) => !completed[l.id]);
 }
 
 /** Completed / total for a set of levels, for progress bars. */

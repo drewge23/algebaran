@@ -4,17 +4,17 @@ import { useNavigate } from 'react-router-dom';
 
 import { MascotSays } from '@/components/Mascot';
 import { PiPill } from '@/components/PiPill';
-import { WORLDS, levelsOfWorld } from '@/content/curriculum';
+import { SYSTEMS, levelsOfSystem } from '@/content/curriculum';
 import { tally, useProgressStore } from '@/store/progressStore';
 
 /**
- * The world selector — the app's front door.
+ * The system selector — the app's front door.
  *
- * There is deliberately no separate "galaxy overview": you land inside a world
+ * There is deliberately no separate "galaxy overview": you land inside a system
  * and swipe sideways between them. CSS scroll-snap does the paging, so it stays
  * a plain scroll container that works with touch, trackpad and keyboard alike.
  */
-export function Worlds() {
+export function Systems() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const completed = useProgressStore((s) => s.completed);
@@ -24,45 +24,45 @@ export function Worlds() {
     <div className="screen screen--scroll" style={{ paddingInline: 0 }}>
       <div className="topbar" style={{ paddingInline: 'var(--space-4)' }}>
         <div className="grow">
-          <div className="topbar__eyebrow">{t('worlds.eyebrow')}</div>
-          <div className="topbar__label">{t('worlds.swipeHint')}</div>
+          <div className="topbar__eyebrow">{t('systems.eyebrow')}</div>
+          <div className="topbar__label">{t('systems.swipeHint')}</div>
         </div>
         <PiPill />
       </div>
 
-      <div className="world-track" ref={trackRef}>
-        {WORLDS.map((world) => {
-          const levels = levelsOfWorld(world.id);
+      <div className="system-track" ref={trackRef}>
+        {SYSTEMS.map((system) => {
+          const levels = levelsOfSystem(system.id);
           const { done, total } = tally(completed, levels);
           const pct = total ? (done / total) * 100 : 0;
 
           return (
             <section
-              className={`world${world.available ? '' : ' world--locked'}`}
-              key={world.id}
-              aria-label={world.title}>
-              <div className="world__planet" aria-hidden="true">
-                {world.available ? world.glyph : '🔒'}
+              className={`system${system.available ? '' : ' system--locked'}`}
+              key={system.id}
+              aria-label={system.title}>
+              <div className="system__planet" aria-hidden="true">
+                {system.available ? system.glyph : '🔒'}
               </div>
 
-              <h1 className="world__title">{world.title}</h1>
-              <p className="world__blurb">{world.blurb}</p>
+              <h1 className="system__title">{system.title}</h1>
+              <p className="system__blurb">{system.blurb}</p>
 
-              {world.available ? (
+              {system.available ? (
                 <>
-                  <div className="world__stats">{t('worlds.progress', { done, total })}</div>
+                  <div className="system__stats">{t('systems.progress', { done, total })}</div>
                   <div className="bar" style={{ width: '78%' }}>
                     <div className="bar__fill" style={{ width: `${pct}%` }} />
                   </div>
                   <button
                     type="button"
-                    className="btn btn--primary world__cta"
-                    onClick={() => navigate(`/world/${world.id}`)}>
-                    {done > 0 ? t('worlds.continue') : t('worlds.enter')} →
+                    className="btn btn--primary system__cta"
+                    onClick={() => navigate(`/system/${system.id}`)}>
+                    {done > 0 ? t('systems.continue') : t('systems.enter')} →
                   </button>
                 </>
               ) : (
-                <div className="world__locked-note">{world.unlockNote}</div>
+                <div className="system__locked-note">{system.unlockNote}</div>
               )}
             </section>
           );
@@ -70,7 +70,7 @@ export function Worlds() {
       </div>
 
       <div style={{ paddingInline: 'var(--space-4)' }}>
-        <MascotSays mood="pointing">{t('worlds.mascot')}</MascotSays>
+        <MascotSays mood="pointing">{t('systems.mascot')}</MascotSays>
       </div>
     </div>
   );

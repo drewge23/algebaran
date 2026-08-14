@@ -158,19 +158,6 @@
       "project_4": "Complete a project"
     }
   },
-  "projects": {
-    "title": "Projects",
-    "subtitle": "Real briefs that use everything you have learned.",
-    "intro": "A project is not a drill. One scenario, start to finish — exactly how this maths gets used.",
-    "brief": "The brief",
-    "briefingSays": "Read it carefully. The numbers matter.",
-    "start": "Accept the brief",
-    "replay": "Run it again",
-    "reward": "Reward: {{pi}} π and {{xp}} XP.",
-    "needs": "Unlocks after: {{list}}",
-    "lockedBody": "Finish the required lessons first — this project uses them.",
-    "completed": "Mission complete!"
-  },
   "duel": {
     "title": "Duel",
     "vs": "VS",
@@ -186,15 +173,6 @@
     "mascotWon": "Ha! Experience still counts for something.",
     "mascotLost": "Well. I shall need to practise."
   },
-  "worlds": {
-    "eyebrow": "Choose a world",
-    "swipeHint": "Swipe to explore",
-    "progress": "{{done}} / {{total}} levels",
-    "enter": "Enter",
-    "continue": "Continue",
-    "mascot": "Each world is a whole branch of mathematics. Start where you are comfortable.",
-    "sectionsMascot": "Pick a landmark. The main road runs straight through — the rest is yours to explore."
-  },
   "sectionKind": {
     "practice": "Practice",
     "bonus": "Bonus",
@@ -205,5 +183,26 @@
   },
   "levels": {
     "comingSoon": "not written yet"
+  },
+  "systems": {
+    "eyebrow": "Choose a world",
+    "swipeHint": "Swipe to explore",
+    "progress": "{{done}} / {{total}} levels",
+    "enter": "Enter",
+    "continue": "Continue",
+    "mascot": "Each world is a whole branch of mathematics. Start where you are comfortable.",
+    "sectionsMascot": "Pick a landmark. The main road runs straight through — the rest is yours to explore."
+  },
+  "workshop": {
+    "eyebrow": "Workshop",
+    "currentMission": "Current mission",
+    "systems": "Ship systems",
+    "start": "Start mission",
+    "locked": "LOCKED",
+    "assembled": "{{done}} of {{total}} systems installed",
+    "ready": "ALL SYSTEMS GO",
+    "allDone": "She is finished. Every number checked, every bolt yours. Shall we?",
+    "lockedBody": "Finish {{list}} first — this bolts onto it.",
+    "missions": "{{done}} of {{total}} missions flown"
   }
 }

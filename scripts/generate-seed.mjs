@@ -49,9 +49,10 @@ for (const block of curriculumSrc.matchAll(
   }
 }
 
-const projectsSrc = read('projects.ts');
+// Workshop missions are recorded as 'project' rows, keyed by mission id.
+const rocketSrc = read('rocket.ts');
 const projectRows = [
-  ...projectsSrc.matchAll(/id:\s*'([^']+)',[\s\S]*?rewardPi:\s*(\d+),\s*rewardXp:\s*(\d+)/g),
+  ...rocketSrc.matchAll(/id:\s*'(m-[^']+)',[\s\S]*?rewardPi:\s*(\d+),\s*rewardXp:\s*(\d+)/g),
 ].map((m) => ({ kind: 'project', id: m[1], pi: Number(m[2]), xp: Number(m[3]) }));
 
 // --- shop items ---
