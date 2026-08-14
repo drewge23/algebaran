@@ -1,26 +1,33 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { MascotSays } from '@/components/Mascot';
 import { PiPill } from '@/components/PiPill';
-import { getWorld, levelsOfSection, levelsOfWorld, sectionsOfWorld } from '@/content/curriculum';
-import { statusForLevel, tally, useProgressStore } from '@/store/progressStore';
-import type { Section } from '@/types/curriculum';
-
-/** Lane pattern that makes the section column read as a winding trail. */
-const LANES = ['c', 'r', 'c', 'l'] as const;
+import { WorldSvgMap } from '@/components/WorldSvgMap';
+import { getWorld, levelsOfWorld, regionsOfWorld } from '@/content/curriculum';
+import { useNavMemory } from '@/store/navStore';
+import { tally, useProgressStore } from '@/store/progressStore';
 
 /**
- * The section map for one world: a compact adventure path of landmarks, not a
- * curriculum tree. Bonus routes are marked so the main road stays obvious.
+ * One world, drawn as a map of glowing islands. Each island is a region — a
+ * cluster of sections — so a world reads as a handful of landmarks rather than a
+ * list of every section it contains.
  */
 export function WorldMap() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { worldId } = useParams<{ worldId: string }>();
   const completed = useProgressStore((s) => s.completed);
+  const remember = useNavMemory((s) => s.remember);
 
   const world = worldId ? getWorld(worldId) : undefined;
+
+  // Remember the world so the next visit opens here instead of the selector.
+  useEffect(() => {
+    if (world) remember({ worldId: world.id, regionId: null });
+  }, [world, remember]);
+
   if (!world) {
     return (
       <div className="screen">
@@ -34,17 +41,19 @@ export function WorldMap() {
     );
   }
 
-  const sections = sectionsOfWorld(world.id);
+  const regions = regionsOfWorld(world.id);
   const { done, total } = tally(completed, levelsOfWorld(world.id));
+
+  const goUp = () => {
+    // Explicit back is the one way out to the selector, so forget this world.
+    remember({ worldId: null, regionId: null });
+    navigate('/');
+  };
 
   return (
     <div className="screen screen--scroll">
       <div className="topbar">
-        <button
-          type="button"
-          className="icon-btn"
-          aria-label={t('common.back')}
-          onClick={() => navigate('/')}>
+        <button type="button" className="icon-btn" aria-label={t('common.back')} onClick={goUp}>
           ←
         </button>
         <div className="grow">
@@ -60,69 +69,14 @@ export function WorldMap() {
 
       <MascotSays mood="happy">{t('worlds.sectionsMascot')}</MascotSays>
 
-      <div className="map">
-        {sections.map((section, i) => (
-          <div key={section.id} className={`node-row node-row--${LANES[i % LANES.length]}`}>
-            <SectionNode
-              section={section}
-              index={i + 1}
-              onOpen={() => navigate(`/section/${section.id}`)}
-            />
-          </div>
-        ))}
-      </div>
+      <WorldSvgMap
+        regions={regions}
+        completed={completed}
+        onOpen={(region) => {
+          remember({ worldId: world.id, regionId: region.id });
+          navigate(`/region/${region.id}`);
+        }}
+      />
     </div>
-  );
-}
-
-function SectionNode({
-  section,
-  index,
-  onOpen,
-}: {
-  section: Section;
-  index: number;
-  onOpen: () => void;
-}) {
-  const { t } = useTranslation();
-  const completed = useProgressStore((s) => s.completed);
-  const levels = levelsOfSection(section.id);
-  const { done, total } = tally(completed, levels);
-
-  // A section opens as soon as any level inside it is reachable.
-  const reachable = levels.some((l) => statusForLevel(completed, l) !== 'locked');
-  const finished = done === total;
-
-  const dotClass = finished
-    ? 'node__dot node__dot--done'
-    : reachable
-      ? 'node__dot node__dot--current'
-      : 'node__dot node__dot--locked';
-
-  return (
-    <button
-      type="button"
-      className="node node--section"
-      disabled={!reachable}
-      onClick={onOpen}
-      aria-label={`${section.title} — ${done}/${total}`}>
-      <span className={dotClass}>{reachable ? section.glyph : '🔒'}</span>
-      <span className={`node__label${reachable ? '' : ' node__label--locked'}`}>
-        {section.title}
-      </span>
-      {reachable ? (
-        <span className="node__reward">
-          {done}/{total}
-        </span>
-      ) : (
-        <span className="node__stars">{t('home.locked')}</span>
-      )}
-      {section.kind !== 'core' && (
-        <span className={`section-tag section-tag--${section.kind}`}>
-          {t(`sectionKind.${section.kind}`)}
-        </span>
-      )}
-      <span className="sr-only">{index}</span>
-    </button>
   );
 }

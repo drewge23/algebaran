@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { HashRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import { BottomNav } from '@/components/BottomNav';
 import { Achievements } from '@/routes/Achievements';
@@ -7,7 +7,7 @@ import { BeatTheClock } from '@/routes/BeatTheClock';
 import { Collect } from '@/routes/Collect';
 import { Duel } from '@/routes/Duel';
 import { LessonRoute } from '@/routes/Lesson';
-import { SectionScreen } from '@/routes/SectionScreen';
+import { RegionScreen } from '@/routes/RegionScreen';
 import { WorldMap } from '@/routes/WorldMap';
 import { Worlds } from '@/routes/Worlds';
 import { Profile } from '@/routes/Profile';
@@ -16,6 +16,7 @@ import { Quests } from '@/routes/Quests';
 import { Welcome } from '@/routes/Welcome';
 import { bindStoresToAccount } from '@/store/accountScope';
 import { useAuthStore } from '@/store/authStore';
+import { rememberedPath, useNavMemory } from '@/store/navStore';
 import { useQuestStore } from '@/store/questStore';
 
 /**
@@ -28,6 +29,30 @@ export function App() {
       <AuthGate />
     </HashRouter>
   );
+}
+
+/**
+ * Puts the learner back where they left off, once per app launch.
+ *
+ * Only fires when landing on the world selector with a position remembered, so
+ * navigating *back* to the selector deliberately stays there — the back button
+ * clears the memory, which is what stops this from trapping anyone.
+ */
+function RestoreLastPlace() {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const nav = useNavMemory();
+  const restored = useRef(false);
+
+  useEffect(() => {
+    if (restored.current) return;
+    restored.current = true;
+    if (pathname !== '/') return;
+    const target = rememberedPath(nav);
+    if (target) navigate(target, { replace: true });
+  }, [navigate, pathname, nav]);
+
+  return null;
 }
 
 /**
@@ -73,10 +98,11 @@ function AuthGate() {
 
   return (
     <div className="app">
+      <RestoreLastPlace />
       <Routes>
         <Route path="/" element={<Worlds />} />
         <Route path="/world/:worldId" element={<WorldMap />} />
-        <Route path="/section/:sectionId" element={<SectionScreen />} />
+        <Route path="/region/:regionId" element={<RegionScreen />} />
         <Route path="/projects" element={<ProjectList />} />
         <Route path="/projects/:id" element={<ProjectRoute />} />
         <Route path="/quests" element={<Quests />} />

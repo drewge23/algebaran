@@ -5,7 +5,7 @@ import { LessonPlayer } from '@/components/LessonPlayer';
 import { MascotSays } from '@/components/Mascot';
 import { PiPill } from '@/components/PiPill';
 import { stepsForLesson } from '@/content/lesson-steps';
-import { getLevel } from '@/content/curriculum';
+import { getLevel, regionOfSection } from '@/content/curriculum';
 import { usePlayerStore } from '@/store/playerStore';
 import { useProgressStore } from '@/store/progressStore';
 import { trackQuest } from '@/store/questStore';
@@ -46,7 +46,7 @@ function PlayableLesson({ lesson, steps }: { lesson: Level; steps: LessonStep[] 
     <LessonPlayer
       unit={lesson}
       steps={steps}
-      backTo={`/section/${lesson.sectionId}`}
+      backTo={regionOfSection(lesson.sectionId) ?? '/'}
       alreadyRewarded={alreadyCompleted}
       onComplete={(stars) => {
         completeLesson(lesson.id, stars);

@@ -690,6 +690,95 @@ button {
   color: var(--text-faint);
 }
 
+/* ---------- World SVG map ---------- */
+
+.worldmap {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-top: var(--space-3);
+  overflow: visible;
+}
+
+.worldmap__route {
+  fill: none;
+  stroke: rgba(155, 123, 255, 0.45);
+  stroke-width: 2.5;
+  stroke-dasharray: 7 11;
+  stroke-linecap: round;
+}
+
+.worldmap__island {
+  cursor: pointer;
+  transition: transform 0.16s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.worldmap__island--locked {
+  cursor: default;
+}
+
+.worldmap__island:not(.worldmap__island--locked):active {
+  transform: scale(0.95);
+}
+
+.worldmap__island:focus-visible {
+  outline: none;
+}
+
+.worldmap__island:focus-visible .worldmap__shape {
+  stroke: var(--gold);
+  stroke-width: 3;
+}
+
+.worldmap__shape {
+  transition: filter 0.25s ease;
+}
+
+/* The reachable region breathes, so the eye lands on where to go next. */
+.worldmap__island--open .worldmap__shape {
+  animation: island-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes island-pulse {
+  0%,
+  100% {
+    opacity: 0.92;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.worldmap__island--locked .worldmap__shape {
+  opacity: 0.55;
+}
+
+.worldmap__glyph {
+  font-size: 34px;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+.worldmap__title {
+  font-size: 15px;
+  font-weight: 800;
+  fill: var(--text);
+  pointer-events: none;
+}
+
+.worldmap__island--locked .worldmap__title {
+  fill: var(--text-faint);
+}
+
+.worldmap__count {
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--gold);
+  pointer-events: none;
+}
+
 /* ---------- Section nodes & level rows ---------- */
 
 .node--section {

@@ -99,6 +99,79 @@ export const SECTIONS: Section[] = Object.entries(SECTION_SPECS).flatMap(([world
   })),
 );
 
+/**
+ * Map regions — the "parts" of a world that light up on the SVG map.
+ *
+ * A region gathers one or more sections into a single landmark. Sixteen glowing
+ * islands would be a wall of detail; six reads as a journey. Foundations is one
+ * region because it is one section.
+ */
+export interface MapRegion {
+  id: string;
+  worldId: string;
+  title: string;
+  blurb: string;
+  glyph: string;
+  sectionIds: string[];
+  order: number;
+}
+
+const REGION_SPECS: Record<string, [string, string, string, string, string[]][]> = {
+  foundations: [['r-f', 'Base Camp', 'Everything the rest stands on.', '🧱', ['f']]],
+  quadratics: [
+    [
+      'r-q-basics',
+      'The Shallows',
+      'Meet them, name them, solve the easy ones.',
+      '🌊',
+      ['q1', 'q2', 'q3'],
+    ],
+    [
+      'r-q-formula',
+      'The Great Engine',
+      'The formula and the discriminant.',
+      '⚙️',
+      ['q4', 'q5', 'q6', 'q7'],
+    ],
+    [
+      'r-q-methods',
+      'The Side Roads',
+      'Graphs, Vieta, completing the square.',
+      '🧭',
+      ['q8', 'q9', 'q10'],
+    ],
+    ['r-q-world', 'The Real World', 'Vertices, shapes and applications.', '🌉', ['q11', 'q12']],
+    ['r-q-mastery', 'The Proving Ground', 'Everything, mixed.', '🎯', ['q13']],
+    ['r-q-summit', 'The Summit', 'Hard problems, olympiad, exams.', '🏔️', ['q14', 'q15', 'q16']],
+  ],
+};
+
+export const REGIONS: MapRegion[] = Object.entries(REGION_SPECS).flatMap(([worldId, specs]) =>
+  specs.map(([id, title, blurb, glyph, sectionIds], i) => ({
+    id,
+    worldId,
+    title,
+    blurb,
+    glyph,
+    sectionIds,
+    order: i + 1,
+  })),
+);
+
+export const getRegion = (id: string) => REGIONS.find((r) => r.id === id);
+
+export const regionsOfWorld = (worldId: string) =>
+  REGIONS.filter((r) => r.worldId === worldId).sort((a, b) => a.order - b.order);
+
+export const levelsOfRegion = (region: MapRegion) =>
+  region.sectionIds.flatMap((id) => levelsOfSection(id));
+
+/** Route back to the map region containing a section — used by lesson back-links. */
+export const regionOfSection = (sectionId: string): string | undefined => {
+  const region = REGIONS.find((r) => r.sectionIds.includes(sectionId));
+  return region ? `/region/${region.id}` : undefined;
+};
+
 /** [id, title, subtitle, kind?] — kind defaults per section below. */
 type LevelSpec = [string, string, string, LevelKind?];
 
