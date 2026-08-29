@@ -11,6 +11,7 @@ import { shuffle } from '@/lib/random';
 import { usePlayerStore } from '@/store/playerStore';
 import { useProgressStore } from '@/store/progressStore';
 import { trackQuest } from '@/store/questStore';
+import { buzz } from '@/lib/haptics';
 
 const ROUND_SECONDS = 60;
 /** π per correct answer, before the player's income multiplier. */
@@ -113,12 +114,12 @@ export function BeatTheClock() {
     if (isRight) {
       correctRef.current += 1;
       setCorrect(correctRef.current);
-      navigator.vibrate?.(10);
+      buzz(10);
     } else {
       setWrong((w) => w + 1);
       // A miss costs three seconds instead of ending the run.
       endsAt.current -= 3000;
-      navigator.vibrate?.([15, 30, 15]);
+      buzz([15, 30, 15]);
     }
     setFlash(isRight ? 'right' : 'wrong');
     setTimeout(() => setFlash(null), 180);

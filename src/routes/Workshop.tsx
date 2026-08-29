@@ -1,10 +1,12 @@
 import { useTranslation } from 'react-i18next';
+import { Check, ChevronRight, Compass, Cylinder, Flame, Fuel, Lock, Rocket } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+
+import COIN from '@/assets/currency.webp';
 
 import { LessonPlayer } from '@/components/LessonPlayer';
 import { MascotSays } from '@/components/Mascot';
 import { PiPill } from '@/components/PiPill';
-import { RocketSvg } from '@/components/RocketSvg';
 import {
   ALL_MISSIONS,
   PROJECT,
@@ -14,10 +16,20 @@ import {
   type Mission,
   type RocketSystem,
 } from '@/content/rocket';
+import { rocketArtFor } from '@/content/art';
 import { useProgressStore } from '@/store/progressStore';
 import { trackQuest } from '@/store/questStore';
 
 type SystemState = 'locked' | 'open' | 'done';
+
+/** One line icon per build stage, so a row is recognisable before it is read. */
+const STAGE_ICON: Record<string, typeof Rocket> = {
+  hull: Cylinder,
+  fuel: Fuel,
+  engine: Flame,
+  navigation: Compass,
+  launch: Rocket,
+};
 
 /** Missions are recorded in the project slice, keyed by mission id. */
 function useBuild() {
@@ -74,7 +86,14 @@ export function Workshop() {
       </div>
 
       <div className="hangar">
-        <RocketSvg built={built} />
+        {/* The picture is the progress bar: a stage lands as a visible change to
+            the ship, and the last one lights the engine and lifts it off. */}
+        <img
+          className={`rocket${complete ? ' rocket--launched' : ''}`}
+          src={rocketArtFor(built.size)}
+          alt=""
+          draggable={false}
+        />
         <div className="hangar__status">
           {/* Counts systems, not missions: the rocket lights up a part per
               system, so this line must describe the same thing you can see. */}
@@ -88,57 +107,67 @@ export function Workshop() {
       </div>
 
       {current ? (
-        <div className="mission-card">
-          <div className="mission-card__kicker">
-            {current.system.glyph} {current.system.name} · {t('workshop.currentMission')}
-          </div>
-          <h2 className="mission-card__title">{current.mission.title}</h2>
-          <p className="mission-card__story">{current.mission.story}</p>
-          <p className="mission-card__objective">🎯 {current.mission.objective}</p>
-          <div className="mission-card__reward">
-            +{current.mission.rewardPi} π · +{current.mission.rewardXp} XP · {current.mission.part}
-          </div>
-          <button
-            type="button"
-            className="btn btn--primary"
-            style={{ marginTop: 16 }}
-            onClick={() => navigate(`/projects/mission/${current.mission.id}`)}>
-            {t('workshop.start')} →
-          </button>
-        </div>
+        <button
+          type="button"
+          className="btn btn--primary next-mission"
+          onClick={() => navigate(`/projects/mission/${current.mission.id}`)}>
+          {t('workshop.next')} →
+        </button>
       ) : (
         <MascotSays mood="proud">{t('workshop.allDone')}</MascotSays>
       )}
 
-      <div className="map-section" style={{ marginTop: 28 }}>
-        <span className="map-section__title grow">{t('workshop.systems')}</span>
-      </div>
+      <section className="tasklist">
+        <h2 className="tasklist__title">{t('workshop.systems')}</h2>
 
-      <div className="system-grid">
         {PROJECT.systems.map((system) => {
           const { done, total } = systemProgress(system);
           const state = systemState(system);
-          const pct = Math.round((done / total) * 100);
+          const reward = system.missions.reduce((sum, m) => sum + m.rewardPi, 0);
+          const Icon = STAGE_ICON[system.id] ?? Rocket;
 
           return (
             <button
               type="button"
               key={system.id}
-              className={`sys-tile sys-tile--${state}`}
+              className={`task-row task-row--${state}`}
               disabled={state === 'locked'}
               onClick={() => navigate(`/projects/system/${system.id}`)}>
-              <span className="sys-tile__glyph">{state === 'locked' ? '🔒' : system.glyph}</span>
-              <span className="sys-tile__name">{system.name}</span>
-              <span className="sys-tile__pct">
-                {state === 'locked' ? t('workshop.locked') : `${pct}%`}
+              <span className="task-row__icon" aria-hidden="true">
+                {state === 'locked' ? <Lock size={20} /> : <Icon size={22} strokeWidth={1.8} />}
               </span>
-              <span className="sys-tile__bar">
-                <span className="sys-tile__fill" style={{ width: `${pct}%` }} />
+
+              <span className="task-row__body">
+                <span className="task-row__name">{system.name}</span>
+                <span className="task-row__meter">
+                  <span className="task-row__count">
+                    <b>{done}</b> / {total}
+                  </span>
+                  <span className="task-row__bar">
+                    <span
+                      className="task-row__fill"
+                      style={{ width: `${total ? (done / total) * 100 : 0}%` }}
+                    />
+                  </span>
+                </span>
+              </span>
+
+              <span className="task-row__reward">
+                +{reward}
+                <img className="task-row__coin" src={COIN} alt="π" draggable={false} />
+              </span>
+
+              <span className={`task-row__go task-row__go--${state}`} aria-hidden="true">
+                {state === 'done' ? (
+                  <Check size={16} strokeWidth={3} />
+                ) : (
+                  <ChevronRight size={18} />
+                )}
               </span>
             </button>
           );
         })}
-      </div>
+      </section>
     </div>
   );
 }

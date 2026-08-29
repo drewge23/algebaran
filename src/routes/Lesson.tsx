@@ -1,11 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import { LessonPlayer } from '@/components/LessonPlayer';
 import { MascotSays } from '@/components/Mascot';
 import { PiPill } from '@/components/PiPill';
+import { GAME_FOR_LEVEL } from '@/content/graph-games';
 import { stepsForLesson } from '@/content/lesson-steps';
-import { getLevel, planetOfSection } from '@/content/curriculum';
+import { getLevel, levelsOfSection, sectionRoute } from '@/content/curriculum';
 import { usePlayerStore } from '@/store/playerStore';
 import { useProgressStore } from '@/store/progressStore';
 import { trackQuest } from '@/store/questStore';
@@ -31,6 +32,11 @@ export function LessonRoute() {
     );
   }
 
+  // A few map nodes are mini-games rather than lessons. They are still opened by
+  // level id from the map, so the redirect lives here rather than in every caller.
+  const game = GAME_FOR_LEVEL[lesson.id];
+  if (game) return <Navigate to={`/graph-game/${game}`} replace />;
+
   // Keyed by lesson id: without this, navigating straight from one lesson to
   // another reuses the same element position and React keeps the previous
   // lesson's step index and mistake count.
@@ -38,15 +44,25 @@ export function LessonRoute() {
   return <PlayableLesson key={lesson.id} lesson={lesson} steps={steps} />;
 }
 
+/** The next lesson in the same section that the learner has not finished. */
+function nextLevelAfter(lesson: Level, completed: Record<string, unknown>): string | undefined {
+  const levels = levelsOfSection(lesson.sectionId);
+  const here = levels.findIndex((l) => l.id === lesson.id);
+  const next = levels.slice(here + 1).find((l) => !completed[l.id]);
+  return next ? `/lesson/${next.id}` : undefined;
+}
+
 function PlayableLesson({ lesson, steps }: { lesson: Level; steps: LessonStep[] }) {
   const completeLesson = useProgressStore((s) => s.completeLesson);
+  const completed = useProgressStore((s) => s.completed);
   const alreadyCompleted = useProgressStore((s) => Boolean(s.completed[lesson.id]));
 
   return (
     <LessonPlayer
       unit={lesson}
       steps={steps}
-      backTo={planetOfSection(lesson.sectionId) ?? '/'}
+      backTo={sectionRoute(lesson.sectionId)}
+      nextTo={nextLevelAfter(lesson, completed)}
       alreadyRewarded={alreadyCompleted}
       onComplete={(stars) => {
         completeLesson(lesson.id, stars);
@@ -72,9 +88,9 @@ function PlaceholderLesson({ lesson }: { lesson: Level }) {
   const completeLesson = useProgressStore((s) => s.completeLesson);
   const alreadyCompleted = useProgressStore((s) => Boolean(s.completed[lesson.id]));
 
-  // Finishing or leaving returns to the map this level sits on, never the home
-  // screen — being thrown back to the system selector loses the learner's place.
-  const backTo = planetOfSection(lesson.sectionId) ?? '/';
+  // Finishing or leaving returns to the section this level sits in, never the
+  // home screen — being thrown back to the world selector loses the learner's place.
+  const backTo = sectionRoute(lesson.sectionId);
 
   const complete = () => {
     if (!alreadyCompleted) {

@@ -1,3 +1,4 @@
+import { GRAPH_LESSONS } from '@/content/graph-lessons';
 import type { LessonStep } from '@/types/content';
 
 /**
@@ -8,7 +9,7 @@ import type { LessonStep } from '@/types/content';
  * English-first (see LessonStep). Equations use Unicode `²` and the true minus
  * sign `−` (U+2212) so they render crisply without a math renderer.
  */
-export const LESSON_STEPS: Record<string, LessonStep[]> = {
+const AUTHORED: Record<string, LessonStep[]> = {
   'q1-4': [
     {
       kind: 'info',
@@ -205,8 +206,49 @@ export const LESSON_STEPS: Record<string, LessonStep[]> = {
       hint: 'D = 9 and √9 = 3, so x = (1 ± 3) / 2. Work out both signs.',
       explanation: 'x = (1 + 3)/2 = 2 and x = (1 − 3)/2 = −1.',
     },
+    {
+      // The whole method on one screen, each line marked on its own — so a
+      // slip in D is visibly a slip in D, and not just a wrong root.
+      kind: 'fields',
+      prompt: 'Now fill in the whole method.',
+      equation: 'x² − 3x − 4 = 0',
+      blanks: [
+        { label: 'a', accepted: ['1'] },
+        { label: 'b', accepted: ['−3'] },
+        { label: 'c', accepted: ['−4'] },
+        { label: 'D', accepted: ['25'] },
+        { label: 'x₁', accepted: ['4'] },
+        { label: 'x₂', accepted: ['−1'] },
+      ],
+      hint: 'Read off a, b and c first, then D = b² − 4ac. x₁ takes the + sign.',
+      explanation: 'D = (−3)² − 4·1·(−4) = 9 + 16 = 25, so x = (3 ± 5)/2 → 4 and −1.',
+    },
+    {
+      // The same solution with the prompts taken away: on a blank sheet, knowing
+      // *which* quantity to find next is most of the skill.
+      kind: 'canvas',
+      prompt:
+        'Same equation, blank sheet. Name each step on the left and give its value on the right.',
+      equation: '2x² − 8x + 6 = 0',
+      work: [
+        { name: ['a'], accepted: ['2'] },
+        { name: ['b'], accepted: ['−8'] },
+        { name: ['c'], accepted: ['6'] },
+        { name: ['D'], accepted: ['16'] },
+      ],
+      roots: ['3', '1'],
+      hint: 'The names are on the keyboard. Four lines of working here: a, b, c and D.',
+      explanation: 'D = (−8)² − 4·2·6 = 64 − 48 = 16, so x = (8 ± 4)/4 → 3 and 1.',
+    },
   ],
 };
+
+/**
+ * The graph strand lives in its own file — it is long, and it is written against
+ * `GraphTask` rather than by hand — but it is the same catalogue as far as the
+ * player is concerned.
+ */
+export const LESSON_STEPS: Record<string, LessonStep[]> = { ...AUTHORED, ...GRAPH_LESSONS };
 
 export function stepsForLesson(id: string): LessonStep[] | undefined {
   return LESSON_STEPS[id];

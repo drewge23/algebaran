@@ -1,3 +1,5 @@
+import type { GraphTask } from '@/types/graph-task';
+
 /**
  * Content model types. Lesson *authoring* (the actual problems, hints and
  * validators) lands in a later phase; for now these types describe the shape of
@@ -74,12 +76,51 @@ export type LessonStep =
       hint?: string;
     }
   | {
+      /** An interactive graph exercise; see types/graph-task.ts. */
+      kind: 'graph';
+      task: GraphTask;
+    }
+  | {
       /** Solve for both roots — the x₁ / x₂ pair from the lesson design. */
       kind: 'roots';
       prompt: string;
       equation: string;
       /** The expected roots; matched order-insensitively (see checkRoots). */
       roots: [string, string];
+      explanation?: string;
+      hint?: string;
+    }
+  | {
+      /**
+       * Several labelled blanks answered in one pass — a = ▢, D = ▢, x₁ = ▢ —
+       * so a whole method is worked through on one screen instead of one value
+       * per step. Each blank is marked on its own.
+       */
+      kind: 'fields';
+      prompt: string;
+      equation?: string;
+      blanks: { label: string; accepted: string[] }[];
+      explanation?: string;
+      hint?: string;
+    }
+  | {
+      /**
+       * A blank worksheet: the learner writes the left-hand side as well as the
+       * right, so nothing on screen says which quantity to find first. That is
+       * the difference from `fields` — here, naming the step is part of the
+       * answer.
+       */
+      kind: 'canvas';
+      prompt: string;
+      equation?: string;
+      /**
+       * The lines the working must contain. Matched in any order: writing the
+       * discriminant before the coefficients is a different route, not a
+       * mistake. `name` lists acceptable spellings of the left-hand side.
+       */
+      work: { name: string[]; accepted: string[] }[];
+      /** Closing lines whose labels are printed for them, e.g. x₁ / x₂. */
+      roots?: [string, string];
       explanation?: string;
       hint?: string;
     };

@@ -10,11 +10,11 @@
 
 :root {
   /* Space backdrop */
-  --bg: #0a0d24;
-  --bg-deep: #070919;
-  --bg-elevated: #141838;
-  --bg-panel: #101430;
-  --surface-locked: #232744;
+  --bg: #11111e;
+  --bg-deep: #060814;
+  --bg-elevated: #1a162b;
+  --bg-panel: #11111e;
+  --surface-locked: #21183e;
 
   /* Paper card */
   --paper: #f7f2e6;
@@ -22,25 +22,29 @@
   --ink: #1a1a2e;
   --ink-soft: #5a5a72;
 
-  /* Brand */
-  --primary: #7c4dff;
-  --primary-deep: #6437e0;
-  --primary-soft: #9b7bff;
-  --primary-dim: rgba(124, 77, 255, 0.16);
-  --gold: #f2b237;
-  --gold-deep: #d99a1f;
+  /* Brand. Purple means interaction and current state; gold means reward and
+     progress; muted grey means inactive. Nothing else carries meaning. */
+  --primary: #784dff;
+  --primary-deep: #5f34e6;
+  --primary-soft: #a982ff;
+  --primary-dim: rgba(120, 77, 255, 0.16);
+  --gold: #f8c83d;
+  --gold-deep: #d9a91f;
   --green: #4ade80;
   --green-deep: #22c55e;
-  --danger: #f87171;
+  --danger: #e47777;
 
   /* Text on dark */
-  --text: #edeafb;
-  --text-dim: #a5a8c8;
-  --text-faint: #6f7396;
+  --text: #f7f5ff;
+  --text-dim: #aaa7b8;
+  --text-faint: #7b7791;
+
+  --border: #27233a;
+  --hairline: rgba(255, 255, 255, 0.07);
 
   --radius-sm: 10px;
-  --radius: 16px;
-  --radius-lg: 22px;
+  --radius: 14px;
+  --radius-lg: 20px;
   --radius-pill: 999px;
 
   --shadow-card: 0 18px 40px rgba(0, 0, 0, 0.45);
@@ -54,12 +58,27 @@
   --space-6: 32px;
 
   /* Chrome heights, used to pad scroll areas */
-  --nav-h: 64px;
+  --nav-h: 78px;
   --header-h: 56px;
 
+  /* Inter when the device already has it, the system stack otherwise. No
+     @font-face: a webfont would cost more than it adds on a link-shared app. */
   --font-ui:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, 'Helvetica Neue', Arial, sans-serif;
+    Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, 'Helvetica Neue', Arial,
+    sans-serif;
   --font-math: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+}
+
+/* Short and functional, and never at the cost of someone who asked for stillness. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 * {
@@ -77,16 +96,9 @@ body {
   margin: 0;
   font-family: var(--font-ui);
   color: var(--text);
+  /* Flat ground. The painting is a layer of the backdrop (below), so it can be
+     held back to half strength without washing it out from on top. */
   background: var(--bg-deep);
-  /* Starfield: three layers of tiny radial dots over a vertical space gradient. */
-  background-image:
-    radial-gradient(1.5px 1.5px at 12% 18%, rgba(255, 255, 255, 0.55) 50%, transparent 50%),
-    radial-gradient(1.5px 1.5px at 72% 8%, rgba(255, 255, 255, 0.4) 50%, transparent 50%),
-    radial-gradient(1.5px 1.5px at 38% 62%, rgba(255, 255, 255, 0.35) 50%, transparent 50%),
-    radial-gradient(2px 2px at 86% 44%, rgba(199, 180, 255, 0.5) 50%, transparent 50%),
-    radial-gradient(1.5px 1.5px at 24% 88%, rgba(255, 255, 255, 0.3) 50%, transparent 50%),
-    linear-gradient(180deg, #0a0d24 0%, #11143a 45%, #0a0d24 100%);
-  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
 }
@@ -97,6 +109,92 @@ button {
   border: none;
   background: none;
   cursor: pointer;
+}
+
+/* The filter host itself must not take up space or catch pointers. */
+.svg-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ---------- Moving backdrop ----------
+ *
+ * A fixed video behind everything, with the starfield on `body` still painted
+ * underneath: the clip is decoration, and every screen has to stay readable if
+ * it never plays (reduced motion, a codec the browser refuses, an offline first
+ * load). The scrim is what guarantees that — it holds text contrast over the
+ * brightest frame of the loop.
+ */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Drifting stars over the painted backdrop, rather than the backdrop itself —
+   so hiding it for reduced motion costs the movement, never the scenery. */
+/* The painted starfield, at full strength — it is the backdrop, not a hint of one. */
+.backdrop__image {
+  position: absolute;
+  inset: 0;
+  background: url('../assets/background.webp') center / cover no-repeat;
+}
+
+/* The artwork is landscape; a portrait phone only sees about a quarter of its
+   width, and dead-centre is its emptiest quarter. Aiming right on tall viewports
+   puts a nebula in frame instead of cropping it away — one file, aimed rather
+   than re-cut. */
+@media (max-aspect-ratio: 3/4) {
+  .backdrop__image {
+    background-position: 76% 50%;
+  }
+}
+
+.backdrop__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.55;
+  mix-blend-mode: screen;
+}
+
+/* A flat wash, not a gradient: the artwork does the atmosphere, and this only
+   guarantees text contrast over the brightest frame of the loop. */
+.backdrop__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 8, 20, 0.22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The painted starfield, at half strength so it reads as depth behind the app
+   rather than as a photograph the UI is sitting on. */
+  .backdrop__image {
+    position: absolute;
+    inset: 0;
+    background: url('../assets/background.webp') center / cover no-repeat;
+    opacity: 0.5;
+  }
+
+  /* The artwork is landscape; a portrait phone only sees about a quarter of its
+   width, and dead-centre is its emptiest quarter. Aiming right on tall viewports
+   puts a nebula in frame instead of cropping it away — one file, aimed rather
+   than re-cut. */
+  @media (max-aspect-ratio: 3/4) {
+    .backdrop__image {
+      background-position: 76% 50%;
+    }
+  }
+
+  .backdrop__video {
+    display: none;
+  }
 }
 
 /* ---------- App shell ---------- */
@@ -199,6 +297,23 @@ button {
   transform: scale(0.94);
 }
 
+/* Theory: gold because the bulb is the one thing on a lesson screen that gives
+   something away, and dimmed rather than hidden when a step has no hint —
+   a control that moves around is harder to reach for than one that greys out. */
+.icon-btn--theory {
+  color: var(--gold);
+}
+
+.icon-btn--theory:disabled {
+  color: var(--text-faint);
+  opacity: 0.5;
+}
+
+.icon-btn--on {
+  background: var(--primary-dim);
+  border-color: rgba(155, 123, 255, 0.45);
+}
+
 /* π balance pill */
 .pi-pill {
   display: inline-flex;
@@ -210,18 +325,28 @@ button {
   padding: 5px 6px 5px 8px;
 }
 
-.pi-coin {
+/* The duel rating badge borrows the pill but is not money, so it keeps a plain
+   disc rather than the coin. */
+.rating-coin {
   width: 26px;
   height: 26px;
   border-radius: var(--radius-pill);
-  background: radial-gradient(circle at 32% 28%, #ffd977, var(--gold) 55%, var(--gold-deep));
-  color: #4a3204;
-  font-weight: 800;
+  background: var(--surface-locked);
+  color: var(--text-dim);
   font-size: 14px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  font-family: var(--font-math);
+}
+
+/* The minted coin, not a CSS disc: it is the app's one piece of currency art. */
+.pi-coin {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .pi-pill__value {
@@ -229,6 +354,27 @@ button {
   color: var(--gold);
   font-variant-numeric: tabular-nums;
   font-size: 15px;
+}
+
+/* Quieter variant: translucent, thin gold edge, no filled coin — present for
+   reference on screens where the balance is not the point. */
+.pi-pill--compact {
+  background: rgba(20, 24, 56, 0.55);
+  border-color: rgba(242, 178, 55, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 5px 12px 5px 8px;
+  gap: 6px;
+}
+
+.pi-pill--compact .pi-coin {
+  width: 22px;
+  height: 22px;
+}
+
+.pi-pill--compact .pi-pill__value {
+  font-size: 14px;
+  color: var(--text);
 }
 
 .pi-pill__value--dim {
@@ -264,21 +410,34 @@ button {
   transition: width 0.35s ease;
 }
 
-/* Segmented step progress (lesson player) */
+/* Segmented step progress (lesson player). Finished steps are solid bars and
+   the step you are on is a dot — a marker rather than a longer bar, so "where
+   am I" is read at a glance instead of measured. */
 .steps {
   display: flex;
+  align-items: center;
   gap: 6px;
+  min-height: 12px;
 }
 
 .steps__seg {
   flex: 1;
-  height: 6px;
+  height: 5px;
   border-radius: var(--radius-pill);
   background: var(--surface-locked);
+  transition: background 0.2s ease;
 }
 
 .steps__seg--done {
   background: var(--primary);
+}
+
+.steps__seg--now {
+  flex: 0 0 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-dim);
 }
 
 /* ---------- Mascot + speech ---------- */
@@ -288,6 +447,9 @@ button {
   align-items: flex-start;
   gap: var(--space-2);
   justify-content: flex-end;
+  /* The drawings run right to the top of their frame, so the row needs its own
+     headroom — without it Professorson's hair sits against whatever is above. */
+  margin-top: var(--space-2);
 }
 
 .mascot {
@@ -465,150 +627,7 @@ button {
 
 /* ---------- Lesson map ---------- */
 
-.map {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  /* Lesson 1 sits at the top: on the web, scrolling down = progressing forward,
-     and the player lands on their current lesson instead of the locked end. */
-  padding: var(--space-4) 0 var(--space-4);
-}
-
-.node-row {
-  display: flex;
-  justify-content: center;
-  position: relative;
-  padding: 13px 0;
-}
-
-/* Dashed connector living in the gap between rows. The row itself is never
-   transformed — only the node inside it — so `left: 50%` stays the true centre
-   of the map and every segment lines up. */
-.node-row + .node-row::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: -13px;
-  height: 26px;
-  width: 2px;
-  transform: translateX(-1px);
-  background-image: linear-gradient(
-    to bottom,
-    rgba(155, 123, 255, 0.5) 0 7px,
-    transparent 7px 14px
-  );
-  background-size: 2px 14px;
-  background-repeat: repeat-y;
-}
-
-/* Alternating lanes make the column read as a winding trail. */
-.node-row--l .node {
-  transform: translateX(-21%);
-}
-.node-row--r .node {
-  transform: translateX(21%);
-}
-
-.node {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  width: 118px;
-  text-align: center;
-}
-
-.node__dot {
-  width: 62px;
-  height: 62px;
-  border-radius: var(--radius-pill);
-  display: grid;
-  place-items: center;
-  font-size: 21px;
-  font-weight: 800;
-  position: relative;
-  transition:
-    transform 0.14s ease,
-    box-shadow 0.2s ease;
-}
-
-.node:active .node__dot {
-  transform: scale(0.93);
-}
-
-.node__dot--done {
-  background: var(--bg-elevated);
-  border: 2px solid var(--green);
-  color: var(--green);
-}
-
-.node__dot--current {
-  background: linear-gradient(180deg, var(--primary-soft), var(--primary-deep));
-  border: 3px solid var(--gold);
-  color: #fff;
-  box-shadow:
-    0 0 0 6px rgba(242, 178, 55, 0.12),
-    0 8px 22px rgba(124, 77, 255, 0.5);
-}
-
-.node__dot--locked {
-  background: radial-gradient(circle at 34% 30%, #32365a, var(--surface-locked) 70%);
-  border: 2px solid rgba(255, 255, 255, 0.07);
-  color: var(--text-faint);
-}
-
-.node__check {
-  position: absolute;
-  right: -3px;
-  bottom: -3px;
-  width: 22px;
-  height: 22px;
-  border-radius: var(--radius-pill);
-  background: var(--green-deep);
-  color: #fff;
-  font-size: 12px;
-  display: grid;
-  place-items: center;
-  border: 2px solid var(--bg);
-}
-
-.node__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  line-height: 1.25;
-  color: var(--text);
-}
-
-.node__label--locked {
-  color: var(--text-faint);
-}
-
-.node__reward {
-  font-size: 11px;
-  color: var(--gold);
-  font-weight: 700;
-}
-
-.node__stars {
-  font-size: 10px;
-  letter-spacing: 1px;
-}
-
-/* Exams are checkpoints, so they read as gold rather than another purple dot. */
-.node__dot--exam {
-  background: linear-gradient(180deg, #ffd977, var(--gold-deep));
-  border-color: var(--gold);
-  color: #4a3204;
-}
-
-.node__todo {
-  font-size: 9.5px;
-  color: var(--text-faint);
-  font-style: italic;
-}
-
-/* Section heading inside the map */
+/* Small uppercase heading, used to label a group on a screen. */
 .map-section {
   display: flex;
   align-items: center;
@@ -628,330 +647,608 @@ button {
   color: var(--primary-soft);
 }
 
-/* ---------- Star systems ---------- */
+/* ---------- Worlds screen ----------
+ *
+ * The front door is a fixed one-screen layout, not a scrolling page: top bar,
+ * planet, words, dots. Nothing is boxed — the planet carries the screen and the
+ * chrome stays out of its way, which is why there is no card, no panel and no
+ * glow ring around the art. Sizes step down with the viewport rather than
+ * shrinking as a block, so the hierarchy survives on a small phone.
+ */
 
-/* Horizontal pager. Scroll-snap keeps it a plain scroll container, so touch,
-   trackpad and keyboard all work without a carousel library. */
-.system-track {
+.worlds {
+  flex: 1;
   display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4) var(--space-4);
+  flex-direction: column;
+  min-height: 100dvh;
+  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
 }
 
-.system-track::-webkit-scrollbar {
+.worlds__top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  height: 72px;
+  padding: 0 var(--space-4);
+  padding-top: env(safe-area-inset-top, 0px);
+  flex-shrink: 0;
+}
+
+/* --- the stage ------------------------------------------------------------ */
+
+.worlds__stage {
+  position: relative;
+  flex: 0 0 auto;
+  /* The hero band from the layout: tall enough to be the subject, capped so it
+     never pushes the words off a short phone. */
+  height: clamp(250px, 40dvh, 340px);
+  display: flex;
+  align-items: center;
+}
+
+/* Scroll-snap paging: swipe, trackpad and the arrow buttons all move the same
+   scroll position, so there is one source of truth for which world is showing. */
+.worlds__track {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  /* The gutters are what let the neighbouring worlds peek in at the edges. A
+     percentage flex-basis resolves against the *content* box, so the item is
+     sized at 100% of it — that is the one ratio which keeps the current world
+     exactly centred whatever the padding works out to. */
+  padding-inline: 22%;
+  gap: 6%;
+  scroll-padding-inline: 22%;
+}
+
+.worlds__track::-webkit-scrollbar {
   display: none;
 }
 
-.system {
+/* The world you are on is a quarter larger than its neighbours: 1.12 against
+   0.896 is exactly 1.25×, and splitting the difference either side of 1 lets the
+   centre pop without outgrowing the band it sits in. */
+.worlds__planet {
   scroll-snap-align: center;
-  flex: 0 0 86%;
+  flex: 0 0 100%;
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: none;
+  border: none;
+  transform: scale(0.896);
+  transition: transform 0.3s ease;
+}
+
+.worlds__planet--active {
+  transform: scale(1.12);
+}
+
+.worlds__planet img {
+  width: 100%;
+  max-width: 240px;
+  max-height: min(240px, 34vh);
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  /* Feathers the cut-out's rim by about 10px (see SvgFilters). No glow and no
+     drop-shadow: the art is lit already, and a shadow on a cut-out gets
+     rasterised to the element box, drawing a faint rectangle around it. */
+  filter: url('#soft-edge');
+  animation: planet-float 9s ease-in-out infinite;
+}
+
+@keyframes planet-float {
+  0%,
+  100% {
+    transform: translateY(-5px);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+.worlds__planet--locked img {
+  filter: grayscale(0.85) brightness(0.42);
+  animation: none;
+}
+
+.worlds__lock {
+  position: absolute;
+  color: var(--text-dim);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.7));
+}
+
+.worlds__arrow {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  display: grid;
+  place-items: center;
+  color: var(--text-dim);
+  background: rgba(20, 24, 56, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.12s ease;
+}
+
+.worlds__arrow:active {
+  transform: translateY(-50%) scale(0.92);
+}
+
+.worlds__arrow:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.worlds__arrow--prev {
+  left: var(--space-2);
+}
+
+.worlds__arrow--next {
+  right: var(--space-2);
+}
+
+/* --- the words ------------------------------------------------------------ */
+
+.worlds__info {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 0 var(--space-4);
+  animation: fade-in 0.3s ease both;
+}
+
+.worlds__title {
+  font-size: clamp(22px, 7.5vw, 30px);
+  line-height: 1.12;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #fff;
+  margin: 0;
+  /* Two lines' worth, always, so the block below does not jump between worlds. */
+  min-height: 2.24em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.worlds__blurb {
+  font-size: 14.5px;
+  line-height: 1.4;
+  color: var(--text-dim);
+  max-width: 280px;
+  margin: var(--space-2) auto 0;
+  min-height: 2.8em;
+}
+
+.worlds__progress {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
   gap: var(--space-2);
-  padding: var(--space-5) var(--space-4);
-  border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, rgba(124, 77, 255, 0.16), rgba(20, 24, 56, 0.85));
-  border: 1px solid rgba(155, 123, 255, 0.28);
+  margin-top: var(--space-3);
 }
 
-.system--locked {
-  background: linear-gradient(180deg, rgba(35, 39, 68, 0.6), rgba(16, 20, 48, 0.85));
-  border-color: rgba(255, 255, 255, 0.07);
-  opacity: 0.72;
-}
-
-.system__planet {
-  font-size: 84px;
-  line-height: 1.1;
-  filter: drop-shadow(0 10px 26px rgba(124, 77, 255, 0.45));
-}
-
-.system__title {
-  font-size: 26px;
+.worlds__pct {
+  font-size: 22px;
   font-weight: 800;
-  margin: var(--space-2) 0 0;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
 }
 
-.system__blurb {
-  color: var(--text-dim);
-  font-size: 14px;
-  margin: 0;
-  max-width: 22em;
+.worlds__bar {
+  width: 120px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(124, 77, 255, 0.25);
+  overflow: hidden;
 }
 
-.system__stats {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--gold);
-  margin-top: var(--space-2);
-}
-
-.system__cta {
-  margin-top: var(--space-3);
-  width: auto;
-  padding-inline: var(--space-5);
-}
-
-.system__locked-note {
-  margin-top: var(--space-3);
-  font-size: 13px;
-  color: var(--text-faint);
-}
-
-/* ---------- Planet map ---------- */
-
-.planetmap {
-  width: 100%;
-  height: auto;
+.worlds__bar-fill {
   display: block;
-  margin-top: var(--space-3);
-  overflow: visible;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--gold-deep), var(--gold));
+  transition: width 0.35s ease;
 }
 
-.planetmap__route {
-  fill: none;
-  stroke: rgba(155, 123, 255, 0.4);
-  stroke-width: 2.5;
-  stroke-dasharray: 6 12;
-  stroke-linecap: round;
+/* --- page indicators ------------------------------------------------------ */
+
+/* `margin-bottom: auto` parks the slack below the dots, so the whole column
+   sits in the upper part of the screen as the layout intends. */
+.worlds__dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  padding: var(--space-4) 0;
+  margin-bottom: auto;
 }
 
-.planetmap__planet {
-  cursor: pointer;
-  transition: transform 0.16s ease;
-  transform-box: fill-box;
-  transform-origin: center;
+/* The dot is the mark; the button around it is the 44px touch target. */
+.worlds__dot {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: none;
 }
 
-.planetmap__planet--locked {
+.worlds__dot::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-pill);
+  background: rgba(124, 77, 255, 0.45);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.worlds__dot--on::before {
+  background: #fff;
+  transform: scale(1.15);
+}
+
+/* Short phones: give the planet the room by tightening the text block. */
+@media (max-height: 700px) {
+  .worlds__blurb {
+    min-height: 0;
+  }
+
+  .worlds__dots {
+    padding: var(--space-3) 0 var(--space-2);
+  }
+}
+
+/* ---------- Sections map (inside a world) ----------
+ *
+ * A column of seals joined by a hairline. Deliberately undecorated: the state
+ * is carried by which seal is shown, a scale nudge for the one you are on, and
+ * a desaturating filter for the ones you are not — no cards, no glow.
+ */
+
+.sections-map {
+  width: min(100%, 360px);
+  margin: var(--space-6) auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.section-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.section-connector {
+  width: 2px;
+  height: 32px;
+  background: rgba(150, 120, 220, 0.25);
+  margin: var(--space-2) 0;
+}
+
+.section-node {
+  width: 96px;
+  height: 96px;
+  position: relative;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: var(--radius-pill);
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
+}
+
+.section-node img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Sixteen identical blue seals in a column are hard to tell apart, so each
+   wears its section's glyph — the seal says the state, the glyph says which. */
+.section-node__glyph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.7));
+  pointer-events: none;
+}
+
+.section-node--open {
+  transform: scale(1.08);
+}
+
+.section-node--open::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--primary-soft);
+}
+
+.section-node--locked {
+  filter: grayscale(0.7);
+  opacity: 0.45;
   cursor: default;
 }
 
-.planetmap__planet:not(.planetmap__planet--locked):active {
+.section-node:not(:disabled):active {
   transform: scale(0.95);
 }
 
-.planetmap__planet:focus-visible {
-  outline: none;
-}
-
-.planetmap__planet:focus-visible .planetmap__body {
-  stroke: var(--gold);
-  stroke-width: 3;
-}
-
-/* The reachable planet breathes, so the eye lands on where to go next. */
-.planetmap__planet--open .planetmap__body {
-  animation: planet-pulse 3s ease-in-out infinite;
-}
-
-@keyframes planet-pulse {
-  0%,
-  100% {
-    opacity: 0.94;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.planetmap__planet--locked .planetmap__body {
-  opacity: 0.6;
-}
-
-.planetmap__mark {
-  fill: rgba(0, 0, 0, 0.16);
-  pointer-events: none;
-}
-
-.planetmap__planet--locked .planetmap__mark {
-  fill: rgba(0, 0, 0, 0.28);
-}
-
-.planetmap__ring {
-  fill: none;
-  stroke: rgba(242, 178, 55, 0.55);
-  stroke-width: 3;
-  pointer-events: none;
-}
-
-.planetmap__planet--locked .planetmap__ring {
-  stroke: rgba(255, 255, 255, 0.12);
-}
-
-.planetmap__planet--done .planetmap__ring {
-  stroke: rgba(74, 222, 128, 0.5);
-}
-
-.planetmap__glyph {
-  font-size: 30px;
-  dominant-baseline: middle;
-  pointer-events: none;
-}
-
-.planetmap__title {
-  font-size: 15px;
-  font-weight: 800;
-  fill: var(--text);
-  pointer-events: none;
-}
-
-.planetmap__planet--locked .planetmap__title {
-  fill: var(--text-faint);
-}
-
-.planetmap__count {
+.section-node__check {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-pill);
+  background: var(--green-deep);
+  color: #fff;
   font-size: 12px;
-  font-weight: 700;
-  fill: var(--gold);
-  pointer-events: none;
-}
-
-/* ---------- Section nodes & level rows ---------- */
-
-.node--section {
-  width: 132px;
-}
-
-.section-tag {
-  font-size: 9.5px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 2px 7px;
-  border-radius: var(--radius-pill);
-  margin-top: 2px;
-}
-
-.section-tag--bonus {
-  background: rgba(155, 123, 255, 0.2);
-  color: var(--primary-soft);
-}
-.section-tag--practice {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-dim);
-}
-.section-tag--apply {
-  background: rgba(74, 222, 128, 0.16);
-  color: var(--green);
-}
-.section-tag--hard,
-.section-tag--olympiad {
-  background: rgba(248, 113, 113, 0.16);
-  color: var(--danger);
-}
-.section-tag--exam {
-  background: rgba(242, 178, 55, 0.18);
-  color: var(--gold);
-}
-
-.level-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  width: 100%;
-  text-align: left;
-  padding: var(--space-3);
-  border-radius: var(--radius);
-  background: var(--bg-elevated);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  color: var(--text);
-}
-
-.level-row--locked {
-  opacity: 0.45;
-}
-
-/* The one level the learner should do next. */
-.level-row--next {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(242, 178, 55, 0.12);
-}
-
-.level-row--exam {
-  background: linear-gradient(180deg, rgba(242, 178, 55, 0.12), var(--bg-elevated));
-  border-color: rgba(242, 178, 55, 0.35);
-}
-
-.level-row__index {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-pill);
-  background: var(--bg-panel);
   display: grid;
   place-items: center;
-  font-weight: 800;
-  font-size: 13px;
-  flex-shrink: 0;
+  border: 2px solid var(--bg-deep);
 }
 
-.level-row__title {
-  display: block;
-  font-size: 14.5px;
+.section-title {
+  margin-top: var(--space-2);
+  font-size: 15px;
   font-weight: 700;
 }
 
-.level-row__right {
+.section-node--locked + .section-title {
+  color: var(--text-faint);
+}
+
+.section-progress {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* ---------- Section screen (a section's lessons) ----------
+ *
+ * The deepest browse level, and a list rather than a map: at this point the
+ * question is "which one is next", and a numbered column answers it faster than
+ * a trail does. The row is the only boxed thing here — it groups four facts
+ * about one lesson, which is exactly what a card is for.
+ */
+
+.section-screen {
+  flex: 1;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  flex-shrink: 0;
+  align-items: center;
+  padding: var(--space-3) var(--space-4) calc(var(--nav-h) + var(--space-6));
+  padding-top: calc(env(safe-area-inset-top, 0px) + var(--space-2));
+  text-align: center;
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-
-/* ---------- Side rail ---------- */
-
-/* The design shows these as a floating side rail; on a phone-width column that
-   steals space from the trail, so they become a horizontal pair of shortcuts. */
-.rail {
-  display: flex;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
-}
-
-.rail__btn {
-  flex: 1;
-  padding: 12px 10px;
-  border-radius: var(--radius);
-  background: rgba(20, 24, 56, 0.9);
-  border: 1px solid rgba(155, 123, 255, 0.22);
+.section-screen__top {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  font-size: 12.5px;
-  font-weight: 600;
-  line-height: 1.2;
-  text-align: left;
-  color: var(--text);
+  width: 100%;
+  min-height: 48px;
 }
 
-.rail__btn:disabled {
+.lesson-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(169, 130, 255, 0.4);
+  background: rgba(20, 24, 56, 0.6);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+}
+
+.lesson-avatar img {
+  width: 116%;
+  height: 116%;
+  object-fit: cover;
+  object-position: 50% 18%;
+}
+
+.section-screen__title {
+  font-size: clamp(20px, 6vw, 26px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin: var(--space-4) 0 0;
+}
+
+/* The section's own emblem: the seal it wears on the world map, with its glyph
+   set into the middle. */
+.section-orb {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  display: grid;
+  place-items: center;
+  margin: var(--space-4) 0 var(--space-3);
+}
+
+.section-orb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.section-orb__glyph {
+  position: absolute;
+  font-size: 40px;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.65));
+}
+
+.section-screen__progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.section-screen__count {
+  font-size: 22px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.section-screen__star {
+  font-size: 19px;
+}
+
+.section-screen__sub {
+  margin: var(--space-1) 0 0;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* --- the list ------------------------------------------------------------- */
+
+.lesson-list {
+  list-style: none;
+  width: 100%;
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lesson-row {
+  width: 100%;
+  min-height: 76px;
+  display: grid;
+  grid-template-columns: 44px 1fr 40px;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  border: 1px solid var(--hairline);
+  background: rgba(18, 14, 38, 0.72);
+  text-align: left;
+  transition:
+    border-color 0.18s ease,
+    transform 0.14s ease;
+}
+
+.lesson-row:not(:disabled):active {
+  transform: scale(0.99);
+}
+
+.lesson-row__num {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(248, 200, 61, 0.4);
+  color: var(--gold);
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.lesson-row__text {
+  min-width: 0;
+}
+
+.lesson-row__title {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.lesson-row__sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--text-dim);
+}
+
+.lesson-row__status {
+  width: 34px;
+  height: 34px;
+  justify-self: end;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border);
+  color: var(--text-faint);
+}
+
+/* Completed: a green tick, the one place green still means "right". */
+.lesson-row__status--done {
+  border-color: rgba(74, 222, 128, 0.55);
+  color: var(--green);
+}
+
+/* Current: the row is outlined and the arrow filled, so the eye lands on the
+   one thing to do next before reading a single title. */
+.lesson-row--current {
+  border-color: var(--primary-soft);
+  background: rgba(120, 77, 255, 0.12);
+}
+
+.lesson-row--current .lesson-row__num {
+  border-color: var(--primary-soft);
+  color: var(--primary-soft);
+}
+
+.lesson-row__status--current {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+/* Coming up: an empty circle. Not open yet, but not shut either. */
+.lesson-row--upcoming .lesson-row__num {
+  border-color: rgba(248, 200, 61, 0.28);
+  color: rgba(248, 200, 61, 0.75);
+}
+
+.lesson-row__status--upcoming {
+  border-color: rgba(169, 130, 255, 0.4);
+}
+
+.lesson-row--locked {
   opacity: 0.55;
 }
 
-.rail__icon {
-  font-size: 20px;
-  flex-shrink: 0;
+.lesson-row--locked .lesson-row__num {
+  border-color: var(--border);
+  color: var(--text-faint);
 }
 
-.rail__reward {
-  color: var(--gold);
-  font-weight: 700;
-  font-size: 11px;
+.lesson-row__status--locked {
+  background: rgba(255, 255, 255, 0.04);
 }
 
 /* ---------- Bottom nav ---------- */
@@ -967,14 +1264,19 @@ button {
   pointer-events: none;
 }
 
+/* Translucent and blurred, with the top corners rounded so the screen reads as
+   continuing underneath it rather than ending at a bar. */
 .nav__inner {
   pointer-events: auto;
   width: 100%;
   max-width: 520px;
   display: flex;
-  background: rgba(16, 20, 48, 0.94);
-  backdrop-filter: blur(14px);
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(14, 17, 40, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: none;
+  border-radius: 22px 22px 0 0;
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
@@ -984,39 +1286,111 @@ button {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 5px;
   height: var(--nav-h);
-  font-size: 10.5px;
-  font-weight: 600;
   color: var(--text-faint);
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: color 0.18s ease;
 }
 
 .nav__item--active {
-  color: var(--primary-soft);
+  color: var(--gold);
 }
 
 .nav__icon {
-  font-size: 20px;
-  line-height: 1;
+  position: relative;
+  display: grid;
+  place-items: center;
+  line-height: 0;
 }
 
-/* ---------- Answer fields ---------- */
+/* The glow belongs to the active tab only, and stays behind the stroke so the
+   icon itself keeps its edges. */
+.nav__item--active .nav__icon::before {
+  content: '';
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-pill);
+  background: radial-gradient(
+    circle,
+    rgba(242, 178, 55, 0.22),
+    rgba(124, 77, 255, 0.14) 60%,
+    transparent 72%
+  );
+}
 
-.answer-row {
+.nav__label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.nav__item--active .nav__label {
+  font-weight: 700;
+}
+
+/* ---------- Answer lines ---------- */
+
+/* One line of a worked solution: what is being found on the left, its value on
+   the right, and a tick that closes the line off. Every typed step is built out
+   of this row — a single blank, a pair of roots, or a whole worksheet — which is
+   why they all share one keyboard, one marking rule and one Check. */
+.answer-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.answer-line {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-3);
+  gap: var(--space-2);
+  padding: 7px 8px 7px 12px;
+  border: 1px solid var(--paper-edge);
+  border-radius: var(--radius);
+  background: #fffdf8;
 }
 
-.answer-row__label {
+.answer-line__label,
+.answer-line__eq {
   font-family: var(--font-math);
   font-style: italic;
-  font-size: 22px;
-  min-width: 3em;
+  font-size: 21px;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.answer-line__label {
+  min-width: 2.2em;
   text-align: right;
+}
+
+.answer-line__tick {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  background: var(--primary-dim);
+  color: var(--primary-deep);
+  transition: opacity 0.15s ease;
+}
+
+.answer-line__tick:disabled {
+  opacity: 0.3;
+}
+
+.answer-line__tick--right {
+  background: #e8faee;
+  color: var(--green-deep);
+}
+
+.answer-line__tick--wrong {
+  background: #fdeceb;
+  color: var(--danger);
 }
 
 /* A button, not an <input>: entry goes through the custom keyboard, so tapping
@@ -1024,10 +1398,10 @@ button {
 .answer-field {
   flex: 1;
   min-width: 0;
-  min-height: 52px;
+  min-height: 40px;
   border-radius: var(--radius-sm);
-  border: 2px solid var(--paper-edge);
-  background: #fffdf8;
+  border: 1px solid var(--paper-edge);
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -1048,9 +1422,15 @@ button {
   cursor: default;
 }
 
+/* The left-hand blank of a worksheet line holds a name, not a value, so it is
+   sized for one — wide enough for x₁, not for an expression. */
+.answer-field--name {
+  flex: 0 0 4.5em;
+}
+
 .answer-field--active {
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px var(--primary-dim);
+  box-shadow: 0 0 0 3px var(--primary-dim);
 }
 
 .answer-field--right {
@@ -1084,6 +1464,107 @@ button {
   50% {
     opacity: 0;
   }
+}
+
+/* ---------- Lesson screen ---------- */
+
+/* The lesson is its own surface: paper from edge to edge, no cards. A card is
+   how a screen says "this part is the content" — when the whole screen is the
+   content, the card is a paper rectangle on a paper background, and the border
+   it draws is the only thing it adds. Header and action are pinned, so the
+   middle is the only thing that scrolls. */
+.lesson-screen {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.lesson-header {
+  flex-shrink: 0;
+  padding: calc(env(safe-area-inset-top, 0px) + var(--space-3)) var(--space-4) var(--space-2);
+}
+
+.lesson-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-3) var(--space-4) var(--space-5);
+}
+
+/* The way on never moves: same place on every step, whether the content above
+   it is three words or a full worksheet. */
+.lesson-actions {
+  flex-shrink: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--paper);
+  border-top: 1px solid var(--paper-edge);
+}
+
+/* Home-bar clearance for the steps that show no keyboard — the pad carries its
+   own inset, so only the other case needs one. */
+.lesson-footer-inset {
+  flex-shrink: 0;
+  height: env(safe-area-inset-bottom, 0px);
+  background: var(--paper);
+}
+
+/* Chrome built for the dark screens, re-tinted for this one. */
+.lesson-screen .icon-btn {
+  background: #fff;
+  border-color: var(--paper-edge);
+  color: var(--ink);
+}
+
+.lesson-screen .icon-btn--theory {
+  color: var(--gold-deep);
+}
+
+.lesson-screen .icon-btn--theory:disabled {
+  color: var(--ink-soft);
+  opacity: 0.4;
+}
+
+.lesson-screen .icon-btn--on {
+  background: var(--primary-dim);
+  border-color: rgba(120, 77, 255, 0.45);
+}
+
+.lesson-screen .topbar__label {
+  color: var(--ink-soft);
+}
+
+.lesson-screen .steps__seg {
+  background: rgba(26, 26, 46, 0.14);
+}
+
+.lesson-screen .steps__seg--done,
+.lesson-screen .steps__seg--now {
+  background: var(--primary);
+}
+
+.lesson-title {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+/* Shown only after a wrong attempt. A worked step needs more than "Answer: 2" —
+   what was missed is usually one line of the method, not the final number. */
+.solution {
+  display: grid;
+  gap: 2px;
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: rgba(228, 119, 119, 0.1);
+}
+
+.solution__line {
+  font-family: var(--font-math);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--ink);
 }
 
 /* ---------- Choice options ---------- */
@@ -1422,7 +1903,10 @@ button {
     var(--shadow-card);
 }
 
-/* ---------- Result ---------- */
+/* ---------- Result panel ----------
+ * Still used by the 404s, the duel and the timed rounds; the lesson result
+ * below has its own layout because the reward is the point of that screen.
+ */
 
 .result {
   flex: 1;
@@ -1451,246 +1935,550 @@ button {
   font-size: 16px;
 }
 
-/* ---------- Forms (auth) ---------- */
+/* ---------- Lesson result ----------
+ *
+ * No header and no chrome: the screen after a lesson is a moment, not a page.
+ * The star is the centrepiece, the rewards are a short list under it, and the
+ * two ways onward sit at the bottom, on the same painted backdrop as the rest
+ * of the app.
+ */
 
-.welcome-hero {
-  text-align: center;
-  padding: var(--space-6) 0 var(--space-3);
-}
-
-.text-input {
-  width: 100%;
-  margin-top: 6px;
-  padding: 13px var(--space-3);
-  border-radius: var(--radius-sm);
-  border: 2px solid var(--paper-edge);
-  background: #fffdf8;
-  color: var(--ink);
-  font-family: inherit;
-  font-size: 16px; /* 16px keeps iOS from zooming the page on focus */
-  font-weight: 600;
-}
-
-.text-input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px var(--primary-dim);
-}
-
-.form-error {
-  color: #b3261e;
-  font-size: 13px;
-  font-weight: 600;
-  margin: 10px 0 0;
-}
-
-.check-row {
+.result-screen {
+  flex: 1;
+  min-height: 100dvh;
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: var(--space-2);
-  margin-top: 18px;
-  cursor: pointer;
+  padding: var(--space-6) var(--space-5);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--space-6));
+  text-align: center;
 }
 
-.check-row input {
-  width: 20px;
-  height: 20px;
-  accent-color: var(--primary);
-  flex-shrink: 0;
-  margin-top: 2px;
+.result-title {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0;
 }
 
-.check-row .tile__name,
-.check-row .tile__desc {
-  display: block;
-  color: var(--ink);
+.result-subtitle {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 15px;
 }
 
-.check-row .tile__desc {
-  color: var(--ink-soft);
+.result-star {
+  width: min(58%, 200px);
+  height: auto;
+  margin: var(--space-4) 0 var(--space-5);
+  user-select: none;
+  -webkit-user-drag: none;
+  animation: star-in 0.42s cubic-bezier(0.34, 1.4, 0.64, 1) both;
 }
 
-.emoji-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+@keyframes star-in {
+  from {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+}
+
+.reward-list {
+  width: min(100%, 300px);
+  display: flex;
+  flex-direction: column;
   gap: var(--space-2);
-  margin-top: 8px;
 }
 
-.emoji-opt {
-  aspect-ratio: 1;
-  border-radius: var(--radius-sm);
-  background: #fff;
-  border: 2px solid var(--paper-edge);
-  font-size: 24px;
-  display: grid;
-  place-items: center;
-  transition: transform 0.12s ease;
-}
-
-.emoji-opt--on {
-  border-color: var(--primary);
-  background: var(--primary-dim);
-  transform: scale(1.06);
-}
-
-/* ---------- Quests ---------- */
-
-.quest {
-  background: var(--bg-elevated);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+/* Amount first, then what it was for — the number is the news. */
+.reward-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--hairline);
   border-radius: var(--radius);
-  padding: var(--space-3);
+  background: rgba(20, 16, 42, 0.6);
+  text-align: left;
+  animation: reward-in 0.3s ease both;
+  animation-delay: 0.12s;
 }
 
-.quest--claimed {
-  opacity: 0.5;
+.reward-row:nth-child(2) {
+  animation-delay: 0.2s;
 }
 
-.badge-done {
+@keyframes reward-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.reward-row__coin {
   width: 28px;
   height: 28px;
-  border-radius: var(--radius-pill);
-  background: var(--green-deep);
-  color: #fff;
-  font-weight: 800;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.reward-row__icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
   display: grid;
   place-items: center;
-  flex-shrink: 0;
-}
-
-.nav__dot {
-  position: absolute;
-  top: -2px;
-  right: -6px;
-  width: 8px;
-  height: 8px;
   border-radius: var(--radius-pill);
-  background: var(--gold);
+  background: rgba(255, 138, 61, 0.14);
+  color: #ff8a3d;
 }
 
-.nav__icon {
-  position: relative;
-}
-
-/* ---------- Projects ---------- */
-
-.project-card {
-  display: block;
-  width: 100%;
-  text-align: left;
-  background: var(--bg-elevated);
-  border: 1px solid rgba(155, 123, 255, 0.25);
-  border-radius: var(--radius);
-  padding: var(--space-3);
-  color: var(--text);
-}
-
-.project-card--locked {
-  opacity: 0.55;
-  border-color: rgba(255, 255, 255, 0.07);
-}
-
-.project-card__head {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-}
-
-.project-card__glyph {
-  font-size: 30px;
-  flex-shrink: 0;
-}
-
-.project-card__title {
-  font-size: 16px;
+.reward-row__value {
+  font-size: 17px;
   font-weight: 800;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
-.project-card__foot {
-  margin-top: var(--space-2);
+.reward-row__label {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.result-actions {
+  width: min(100%, 300px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: var(--space-5);
+}
+
+/* The quieter of the two ways out: still a full-width target, no fill. */
+.btn--quiet {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--hairline);
+  color: var(--text-dim);
+  font-weight: 600;
 }
 
 /* ---------- Duel ---------- */
 
-.versus {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin: var(--space-4) 0;
+.duel-screen {
+  overflow: hidden;
 }
 
-.versus__side {
-  flex: 1;
-  background: var(--bg-elevated);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: var(--radius);
-  padding: var(--space-3) var(--space-2);
+.duel-lobby {
+  width: min(100%, 520px);
+  margin: 0 auto;
+}
+
+.duel-lobby__eyebrow,
+.duel-result__eyebrow {
+  margin-top: 22px;
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.duel-arena {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1fr);
+  align-items: end;
+  gap: 2px;
+  min-height: 230px;
+  margin: 6px auto 0;
+}
+
+.duel-fighter {
+  min-width: 0;
   text-align: center;
 }
 
-.versus__avatar {
-  font-size: 34px;
-  line-height: 1.1;
-  height: 44px;
+.duel-fighter__avatar,
+.duel-fighter__portrait {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
   display: grid;
   place-items: center;
 }
 
-.versus__avatar--art img {
-  width: 44px;
+.duel-fighter__avatar {
+  border: 1px solid rgba(169, 130, 255, 0.5);
+  background: rgba(120, 77, 255, 0.12);
+  box-shadow: 0 0 28px rgba(120, 77, 255, 0.16);
+  font-size: 42px;
 }
 
-.versus__name {
-  font-size: 13px;
+.duel-fighter__portrait {
+  overflow: hidden;
+  border: 1px solid rgba(248, 200, 61, 0.35);
+  background: rgba(248, 200, 61, 0.07);
+}
+
+.duel-fighter__portrait img {
+  width: 115%;
+  height: 115%;
+  object-fit: contain;
+  object-position: center 12%;
+}
+
+.duel-fighter__label {
+  color: var(--text-faint);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.duel-fighter__name {
+  margin-top: 3px;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duel-fighter__rating {
+  margin-top: 2px;
+  color: var(--gold);
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.duel-arena__core {
+  position: relative;
+  height: 126px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 5px;
+}
+
+.duel-arena__orbit {
+  position: absolute;
+  inset: 18px 5px;
+  border: 1px solid rgba(169, 130, 255, 0.4);
+  border-radius: 50%;
+  transform: rotate(-32deg);
+}
+
+.duel-arena__orbit--two {
+  inset: 31px 0;
+  border-color: rgba(248, 200, 61, 0.35);
+  transform: rotate(36deg);
+}
+
+.duel-arena__vs {
+  z-index: 1;
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.duel-arena__caption {
+  z-index: 1;
+  color: var(--text-faint);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.duel-match-meta {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-4);
+  margin: 17px 0 20px;
+  color: var(--text-dim);
+  font-size: 12px;
   font-weight: 700;
+}
+
+.duel-brief {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid rgba(169, 130, 255, 0.18);
+  border-radius: var(--radius-lg);
+  background: rgba(18, 20, 49, 0.66);
+}
+
+.duel-brief__icon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(120, 77, 255, 0.16);
+  color: var(--gold);
+}
+
+.duel-brief h1 {
+  margin: 1px 0 4px;
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.duel-brief p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.duel-brief__cta {
+  grid-column: 1 / -1;
   margin-top: 4px;
+}
+
+.duel-lobby .mascot-row {
+  margin-top: 18px;
+}
+
+.duel-screen--play {
+  padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+}
+
+.duel-play-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+  padding: 8px 0;
+}
+
+.duel-play-hud__fighter {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 44px;
+  color: var(--text);
+  font-size: 19px;
+}
+
+.duel-play-hud__fighter--foe {
+  justify-content: flex-end;
+}
+
+.duel-play-hud__round {
+  display: grid;
+  justify-items: center;
+  color: var(--text-faint);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.duel-play-hud__round strong {
+  margin-top: 2px;
+  color: var(--text);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.duel-question {
+  width: min(100%, 520px);
+  margin: auto;
+  padding: clamp(28px, 8vh, 72px) 0 0;
+  text-align: center;
+}
+
+.duel-question__prompt {
+  margin: 0 0 14px;
+  color: var(--text-dim);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.duel-question .math {
+  font-size: clamp(34px, 11vw, 52px);
+}
+
+.duel-question__line {
+  width: 48px;
+  height: 3px;
+  margin: 27px auto 24px;
+  border-radius: var(--radius-pill);
+  background: var(--gold);
+}
+
+.duel-choices {
+  display: grid;
+  gap: 10px;
+}
+
+.duel-choice {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px;
+  border: 1px solid rgba(169, 130, 255, 0.18);
+  border-radius: var(--radius);
+  background: rgba(18, 20, 49, 0.64);
+  color: var(--text);
+  font-size: 19px;
+  text-align: left;
+}
+
+.duel-choice:active {
+  transform: scale(0.985);
+}
+
+.duel-choice__index {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(169, 130, 255, 0.12);
+  color: var(--soft);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.duel-question--right .duel-question__line {
+  background: var(--green);
+}
+
+.duel-question--wrong .duel-question__line {
+  background: var(--danger);
+}
+
+.duel-result {
+  width: min(100%, 420px);
+  margin: auto;
+  padding-top: clamp(24px, 6vh, 56px);
+  text-align: center;
+}
+
+.duel-result__mark {
+  width: 82px;
+  height: 82px;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(169, 130, 255, 0.36);
+  border-radius: 50%;
+  background: rgba(120, 77, 255, 0.12);
+  color: var(--soft);
+  font-size: 43px;
+  font-weight: 700;
+}
+
+.duel-result__mark--win {
+  border-color: rgba(248, 200, 61, 0.55);
+  color: var(--gold);
+}
+
+.duel-result__mark--loss {
+  border-color: rgba(255, 117, 117, 0.4);
+  color: var(--danger);
+}
+
+.duel-result__headline {
+  margin: 4px 0 24px;
+  color: var(--text);
+  font-size: 32px;
+  line-height: 1;
+}
+
+.duel-scoreboard {
+  display: grid;
+  grid-template-columns: 1fr 32px 1fr;
+  align-items: center;
+  padding: 16px 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.duel-scoreboard__fighter {
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.duel-scoreboard__fighter > span:not(.duel-scoreboard__avatar) {
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.versus__rating {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--gold);
-  font-variant-numeric: tabular-nums;
+.duel-scoreboard__avatar {
+  font-size: 22px;
 }
 
-.versus__vs {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--text-faint);
-  letter-spacing: 0.08em;
+.duel-scoreboard__fighter strong {
+  color: var(--text);
+  font-size: 28px;
+  line-height: 1;
 }
 
-.duel-hud {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: var(--space-3) 0;
-  font-weight: 800;
-  font-size: 17px;
-}
-
-.duel-hud__progress {
-  font-size: 13px;
+.duel-scoreboard__fighter small {
   color: var(--text-faint);
   font-variant-numeric: tabular-nums;
 }
 
-.rating-delta {
+.duel-scoreboard__divider {
+  color: var(--text-faint);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.duel-result__rating {
+  margin-top: 16px;
   font-size: 17px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 
-.rating-delta--up {
+.duel-result__rating--up {
   color: var(--green);
 }
 
-.rating-delta--down {
+.duel-result__rating--down {
   color: var(--danger);
+}
+
+.duel-result__reward {
+  margin-top: 5px;
+  color: var(--gold);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.duel-result .mascot-row {
+  margin-top: 24px;
+  text-align: left;
+}
+
+.duel-result__actions {
+  width: min(100%, 420px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 20px auto 0;
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
 }
 
 /* ---------- Misc ---------- */
@@ -1803,67 +2591,40 @@ button {
 }
 
 .rocket {
-  width: min(58%, 220px);
+  width: min(62%, 240px);
   height: auto;
   display: block;
-  filter: drop-shadow(0 18px 40px rgba(124, 77, 255, 0.28));
+  /* The blueprint frame is faint by design, so the drawing needs no shadow of
+     its own — and a shadow on a cut-out draws a box, not a halo. */
+  transition: opacity 0.3s ease;
+  animation: rocket-hover 6s ease-in-out infinite;
 }
 
-/* Unbuilt parts are ghosted outlines, so the ship reads as incomplete rather
-   than absent — you can see what you are working toward. */
-.rocket__part {
-  opacity: 0.16;
-  transition:
-    opacity 0.45s ease,
-    filter 0.45s ease;
-}
-
-.rocket__part--on {
-  opacity: 1;
-}
-
-.rocket__fill-body {
-  fill: url(#r-hull);
-  stroke: rgba(255, 255, 255, 0.35);
-  stroke-width: 1.5;
-}
-.rocket__fill-nose {
-  fill: url(#r-nose);
-  stroke: rgba(185, 163, 255, 0.6);
-  stroke-width: 1.5;
-}
-.rocket__fill-metal {
-  fill: #6f74a0;
-  stroke: rgba(255, 255, 255, 0.28);
-  stroke-width: 1.5;
-}
-.rocket__fill-hull {
-  fill: #8e93bd;
-  stroke: rgba(255, 255, 255, 0.28);
-  stroke-width: 1.5;
-}
-.rocket__fill-accent {
-  fill: var(--gold);
-  opacity: 0.85;
-}
-.rocket__window {
-  fill: #0a0d24;
-  stroke: var(--gold);
-  stroke-width: 3;
-}
-
-.rocket__part--on .rocket__flame {
-  animation: flame 0.5s ease-in-out infinite alternate;
-  transform-box: fill-box;
-  transform-origin: top center;
-}
-
-@keyframes flame {
-  from {
-    transform: scaleY(0.9) scaleX(0.94);
+@keyframes rocket-hover {
+  0%,
+  100% {
+    transform: translateY(-4px);
   }
-  to {
-    transform: scaleY(1.08) scaleX(1.02);
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+/* The fifth stage is the launch. The ship is already fully drawn by then, so
+   what the last stage buys is the flight: it climbs and stays climbing. */
+.rocket--launched {
+  animation: rocket-liftoff 2.6s cubic-bezier(0.32, 0, 0.5, 1) forwards;
+}
+
+@keyframes rocket-liftoff {
+  0% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(10px) scale(0.99);
+  }
+  100% {
+    transform: translateY(-26px) scale(1.04);
   }
 }
 
@@ -1875,145 +2636,1035 @@ button {
   letter-spacing: 0.03em;
 }
 
-.mission-card {
-  background: var(--paper);
-  color: var(--ink);
+/* The one call to action on the workshop floor: everything the mission card
+   used to say is either on the rocket above it or in the stage list below. */
+.next-mission {
+  margin-top: var(--space-4);
+}
+
+/* ---------- Project task list ----------
+ *
+ * One row per build stage: what it is, how far in you are, what it pays, and the
+ * way in. The panel is the only card on the screen — the rocket above it needs
+ * the room, and a grid of tiles would compete with it.
+ */
+
+.tasklist {
+  margin-top: var(--space-5);
+  padding: var(--space-3);
   border-radius: var(--radius-lg);
-  padding: var(--space-4);
-  box-shadow: var(--shadow-card);
-}
-
-.mission-card__kicker {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--primary-deep);
-}
-
-.mission-card__title {
-  font-size: 20px;
-  font-weight: 800;
-  margin: 6px 0 8px;
-}
-
-.mission-card__story {
-  font-size: 14.5px;
-  line-height: 1.5;
-  margin: 0;
-  color: var(--ink);
-}
-
-.mission-card__objective {
-  font-size: 14px;
-  font-weight: 700;
-  margin: var(--space-3) 0 0;
-  color: var(--ink);
-}
-
-.mission-card__reward {
-  margin-top: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--paper-edge);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--gold-deep);
-}
-
-.system-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-3);
-}
-
-.sys-tile {
+  border: 1px solid rgba(139, 77, 255, 0.16);
+  background: rgba(12, 10, 28, 0.55);
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  padding: var(--space-3);
-  border-radius: var(--radius);
-  background: var(--bg-elevated);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  color: var(--text);
-  text-align: left;
+  gap: 10px;
 }
 
-.sys-tile--open {
-  border-color: rgba(155, 123, 255, 0.4);
-}
-
-.sys-tile--done {
-  border-color: rgba(74, 222, 128, 0.4);
-}
-
-.sys-tile--locked {
-  opacity: 0.5;
-}
-
-.sys-tile__glyph {
-  font-size: 24px;
-}
-
-.sys-tile__name {
-  font-size: 14.5px;
-  font-weight: 800;
-}
-
-.sys-tile__pct {
+.tasklist__title {
+  margin: 2px 0 2px 4px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--gold);
 }
 
-.sys-tile--done .sys-tile__pct {
-  color: var(--green);
+.task-row {
+  display: grid;
+  grid-template-columns: 56px 1fr auto auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 10px var(--space-3);
+  border-radius: var(--radius);
+  border: 1px solid var(--hairline);
+  background: rgba(18, 14, 38, 0.66);
+  text-align: left;
+  transition:
+    border-color 0.18s ease,
+    transform 0.14s ease;
 }
 
-.sys-tile__bar {
+.task-row:not(:disabled):active {
+  transform: scale(0.99);
+}
+
+.task-row__icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(169, 130, 255, 0.28);
+  color: var(--primary-soft);
+}
+
+.task-row__body {
+  min-width: 0;
+}
+
+.task-row__name {
   display: block;
-  width: 100%;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.task-row__meter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.task-row__count {
+  font-size: 13px;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The part you have done is the part worth colouring. */
+.task-row__count b {
+  color: var(--primary-soft);
+  font-weight: 700;
+}
+
+.task-row__bar {
+  flex: 1;
+  min-width: 48px;
   height: 5px;
   border-radius: var(--radius-pill);
   background: var(--surface-locked);
   overflow: hidden;
-  margin-top: 4px;
 }
 
-.sys-tile__fill {
+.task-row__fill {
   display: block;
   height: 100%;
-  border-radius: var(--radius-pill);
+  border-radius: inherit;
   background: linear-gradient(90deg, var(--primary), var(--primary-soft));
+  transition: width 0.35s ease;
 }
 
-.sys-tile--done .sys-tile__fill {
-  background: var(--green-deep);
+.task-row__reward {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gold);
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
-.mission-row {
+.task-row__coin {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.task-row__go {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  color: var(--text-faint);
+}
+
+.task-row__go--done {
+  border-radius: var(--radius-pill);
+  border: 1.5px solid rgba(74, 222, 128, 0.55);
+  color: var(--green);
+}
+
+.task-row--done {
+  border-color: rgba(74, 222, 128, 0.22);
+}
+
+.task-row--locked {
+  opacity: 0.45;
+}
+
+.task-row--locked .task-row__icon {
+  border-color: var(--border);
+  color: var(--text-faint);
+}
+
+/* ---------- Graphs ----------
+ *
+ * The plane is drawn as graph paper on the card: the card is already cream, so
+ * the axes take the card's ink and the grid a faint ruling. Inside the frame the
+ * only colours that carry meaning are the curve and the points — decoration here
+ * would compete with the maths the learner has to read.
+ */
+
+.graph {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  margin: var(--space-4) auto 0;
+  touch-action: manipulation;
+}
+
+.graph--interactive {
+  cursor: crosshair;
+}
+
+.graph__bg {
+  fill: #fffdf6;
+  stroke: var(--paper-edge);
+  stroke-width: 1;
+}
+
+.graph__grid line {
+  stroke: #d8d0ba;
+  stroke-width: 1;
+}
+
+.graph__axes line {
+  stroke: var(--ink);
+  stroke-width: 1.75;
+  stroke-linecap: round;
+}
+
+.graph__labels text {
+  fill: var(--ink-soft);
+  font-family: var(--font-math);
+  font-style: italic;
+  font-size: 11px;
+}
+
+.graph__curve {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.graph__curve--main {
+  stroke: var(--primary);
+}
+
+.graph__curve--ghost {
+  stroke: var(--ink-soft);
+  stroke-width: 2;
+  stroke-dasharray: 6 6;
+}
+
+.graph__curve--target {
+  stroke: var(--green-deep);
+  stroke-width: 2.5;
+  stroke-dasharray: 4 7;
+}
+
+.graph__point circle {
+  stroke: #fffdf6;
+  stroke-width: 2;
+}
+
+.graph__point text {
+  fill: var(--ink);
+  font-family: var(--font-math);
+  font-style: italic;
+  font-size: 13px;
+  font-weight: 700;
+  /* Knocked out of the paper, so a label near the axis does not collide with
+     the tick numbers underneath it. */
+  paint-order: stroke;
+  stroke: #fffdf6;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.graph__point--user circle {
+  fill: var(--primary);
+}
+
+.graph__point--given circle {
+  fill: var(--ink);
+}
+
+.graph__point--correct circle {
+  fill: var(--green-deep);
+}
+
+.graph__point--wrong circle {
+  fill: var(--danger);
+}
+
+.graph__point--target circle {
+  fill: var(--gold-deep);
+}
+
+.graph__target-ring {
+  fill: none;
+  stroke: var(--gold-deep);
+  stroke-width: 2;
+  stroke-dasharray: 3 4;
+}
+
+.graph-task__actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.graph-task__actions .btn--primary {
+  flex: 1;
+}
+
+/* Coefficient sliders, for tasks that ask the learner to shape a curve. */
+
+.coeff-controls {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.coeff {
+  display: grid;
+  grid-template-columns: 22px 1fr 68px;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.coeff__name {
+  font-family: var(--font-math);
+  font-style: italic;
+  font-size: 21px;
+  color: var(--ink);
+}
+
+/* The value is read as often as the slider is dragged, so it gets a field of
+   its own rather than a caption — the same box the typed answers wear. */
+.coeff__value {
+  min-height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--paper-edge);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  font-family: var(--font-math);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ink);
+}
+
+.coeff input[type='range'] {
+  width: 100%;
+  height: 26px;
+  accent-color: var(--primary);
+}
+
+/* ---------- Arcade ---------- */
+
+.arcade-link {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   width: 100%;
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(155, 123, 255, 0.3);
+  border-radius: var(--radius);
+  background: var(--bg-panel);
+  color: var(--text);
+  font: inherit;
   text-align: left;
-  padding: var(--space-3);
+  cursor: pointer;
+}
+
+.arcade-link:active {
+  transform: translateY(1px);
+}
+
+.arcade-link__glyph {
+  display: grid;
+  place-items: center;
+  color: var(--gold);
+  line-height: 0;
+}
+
+.arcade-link__title {
+  display: block;
+  font-weight: 800;
+}
+
+.arcade-link__sub {
+  display: block;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.game-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-4);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: var(--radius);
   background: var(--bg-elevated);
-  border: 1px solid rgba(255, 255, 255, 0.07);
   color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
-.mission-row--done {
-  border-color: rgba(74, 222, 128, 0.35);
+.game-card:active {
+  transform: translateY(1px);
 }
 
-.mission-row:disabled {
-  opacity: 0.5;
+.game-card__glyph {
+  font-size: 26px;
 }
 
-.hangar__sub {
+.game-card__title {
+  font-weight: 800;
+}
+
+.game-card__blurb {
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--text-dim);
+}
+
+.game-card__meta {
   margin-top: 2px;
   font-size: 12px;
   color: var(--text-faint);
+}
+
+/* ---------- Tabs (quests, shop) ----------
+ * A text row, not a segmented control: the underline is enough to say which is
+ * selected, and it costs no boxes on screens that already list boxes.
+ */
+
+.tabs {
+  display: flex;
+  gap: var(--space-5);
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 18px 0;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  position: relative;
+  min-height: 44px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+  transition: color 0.18s ease;
+}
+
+.tab--on {
+  color: var(--text);
+}
+
+.tab--on::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--primary-soft);
+}
+
+/* ---------- Quests ---------- */
+
+.quest-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.quest {
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  background: rgba(18, 14, 38, 0.72);
+  border: 1px solid var(--hairline);
+}
+
+.quest--claimed {
+  opacity: 0.55;
+}
+
+.quest-header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.quest-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.quest-reward {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.quest-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: 6px;
+  min-height: 20px;
+}
+
+.quest-count {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.quest-claim {
+  min-height: 28px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.quest-claimed {
+  color: var(--green);
+  font-size: 14px;
+}
+
+.quest-progress {
+  height: 4px;
+  margin-top: 9px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-locked);
+  overflow: hidden;
+}
+
+.quest-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gold);
+  transition: width 0.3s ease;
+}
+
+.quest-progress-fill.is-done {
+  background: var(--green-deep);
+}
+
+.quest-claim-all {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.quest-claim-all__label {
+  font-size: 13px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+/* ---------- Mini-games ---------- */
+
+.minigame-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.minigame {
+  min-height: 84px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 10px var(--space-3);
+  border-radius: var(--radius);
+  background: rgba(17, 13, 36, 0.82);
+  border: 1px solid rgba(139, 77, 255, 0.18);
+  text-align: left;
+  transition: transform 0.15s ease;
+}
+
+.minigame:active {
+  transform: scale(0.99);
+}
+
+.minigame__art {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  color: var(--primary-soft);
+}
+
+.minigame__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: url('#soft-edge');
+}
+
+.minigame__text {
+  min-width: 0;
+}
+
+.minigame-title {
+  display: block;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.minigame-description {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--text-dim);
+}
+
+.minigame-meta {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.minigame-button {
+  min-width: 62px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  background: var(--primary-dim);
+  border: 1px solid rgba(169, 130, 255, 0.35);
+  color: var(--primary-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ---------- Profile ---------- */
+
+.profile-screen {
+  flex: 1;
+  min-height: 100dvh;
+  padding: var(--space-3) var(--space-4) calc(var(--nav-h) + var(--space-6));
+  padding-top: calc(env(safe-area-inset-top, 0px) + var(--space-3));
+  text-align: center;
+}
+
+.profile-top {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 44px;
+}
+
+.profile-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 40px;
+  background: var(--bg-elevated);
+  border: 2px solid var(--primary);
+  margin: var(--space-2) auto 0;
+  padding: 0;
+}
+
+.profile-name {
+  font-size: 22px;
+  font-weight: 800;
+  margin: var(--space-3) 0 0;
+}
+
+.profile-level {
+  margin-top: 14px;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.profile-xp {
+  width: min(260px, 80%);
+  margin: var(--space-2) auto var(--space-5);
+}
+
+.profile-xp__label {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hairlines instead of a card: the numbers are the content, the band only
+   says they belong together. */
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: var(--space-4) 0;
+}
+
+.profile-stat-value {
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.profile-stat-label {
+  color: var(--text-dim);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.profile-pi {
+  margin-top: var(--space-4);
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.profile-pi strong {
+  color: var(--gold);
+}
+
+.profile-section {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  margin-top: var(--space-4);
+  padding: 0;
+  background: none;
+}
+
+.profile-section__title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.profile-section__more {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+  color: var(--primary-soft);
+}
+
+.badge-row {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-start;
+}
+
+.badge-dot {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-pill);
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-faint);
+}
+
+.badge-dot--on {
+  border-color: rgba(248, 200, 61, 0.45);
+}
+
+.achievement-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.achievement-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 10px var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline);
+  background: rgba(20, 16, 42, 0.6);
+  text-align: left;
+}
+
+.achievement-row__glyph {
+  font-size: 22px;
+}
+
+.achievement-row__name {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.achievement-row__desc {
+  display: block;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* ---------- Shop ----------
+ * Kept visually quieter than the learning screens on purpose: the economy sits
+ * below the maths in the hierarchy, so nothing here glows or pushes.
+ */
+
+.shop-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shop-item {
+  display: grid;
+  grid-template-columns: 58px 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 78px;
+  padding: 10px;
+  border-radius: var(--radius);
+  background: rgba(18, 14, 38, 0.8);
+  border: 1px solid var(--hairline);
+}
+
+.shop-item__glyph {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  border-radius: var(--radius-sm);
+  background: rgba(120, 77, 255, 0.1);
+}
+
+.shop-item__text {
+  min-width: 0;
+}
+
+.shop-item__name {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.shop-item__desc {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--text-dim);
+}
+
+.shop-item__bonus {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--primary-soft);
+}
+
+.shop-action {
+  min-height: 44px;
+  min-width: 72px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.shop-action--buy {
+  border-color: rgba(248, 200, 61, 0.35);
+}
+
+.shop-action:disabled {
+  opacity: 0.4;
+}
+
+.shop-price {
+  color: var(--gold);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.shop-owned {
+  font-size: 12px;
+  color: var(--green);
+  white-space: nowrap;
+  padding: 0 var(--space-2);
+}
+
+.shop-flash {
+  align-self: flex-start;
+  margin-bottom: var(--space-3);
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(248, 200, 61, 0.35);
+  background: var(--bg-elevated);
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* ---------- Settings ----------
+ * Intentionally conventional: a list of rows separated by hairlines. Nothing
+ * here should be interesting to look at.
+ */
+
+.settings-screen {
+  flex: 1;
+  min-height: 100dvh;
+  padding: var(--space-4);
+  padding-top: calc(env(safe-area-inset-top, 0px) + var(--space-2));
+  padding-bottom: calc(var(--nav-h) + var(--space-6));
+}
+
+.settings-header {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.settings-list {
+  margin-top: var(--space-3);
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-row {
+  width: 100%;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: left;
+  color: inherit;
+  background: none;
+}
+
+.settings-label {
+  font-size: 14px;
+}
+
+.settings-value {
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.settings-chevron {
+  color: var(--text-faint);
+  transition: rotate 0.18s ease;
+}
+
+.settings-about {
+  padding: var(--space-3) 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.settings-action {
+  margin-top: var(--space-5);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.settings-danger {
+  color: var(--danger);
+  margin-top: 18px;
+  min-height: 44px;
+  font-size: 14px;
+  padding: 0 4px;
+}
+
+/* A plain switch, built from a checkbox so it stays keyboard- and
+   screen-reader-operable without any ARIA of its own. */
+.switch {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.switch input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.switch__track {
+  width: 46px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-locked);
+  border: 1px solid var(--border);
+  transition: background 0.18s ease;
+  position: relative;
+}
+
+.switch__track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  background: var(--text-dim);
+  transition:
+    translate 0.18s ease,
+    background 0.18s ease;
+}
+
+.switch input:checked + .switch__track {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.switch input:checked + .switch__track::after {
+  translate: 18px 0;
+  background: #fff;
+}
+
+.switch input:focus-visible + .switch__track {
+  outline: 2px solid var(--primary-soft);
+  outline-offset: 2px;
 }

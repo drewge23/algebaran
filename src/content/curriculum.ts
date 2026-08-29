@@ -99,85 +99,6 @@ export const SECTIONS: Section[] = Object.entries(SECTION_SPECS).flatMap(([syste
   })),
 );
 
-/**
- * Map planets — the "parts" of a system that light up on the SVG map.
- *
- * A planet gathers one or more sections into a single landmark. Sixteen glowing
- * islands would be a wall of detail; six reads as a journey. Foundations is one
- * planet because it is one section.
- */
-export interface Planet {
-  id: string;
-  systemId: string;
-  title: string;
-  blurb: string;
-  glyph: string;
-  sectionIds: string[];
-  order: number;
-}
-
-const PLANET_SPECS: Record<string, [string, string, string, string, string[]][]> = {
-  foundations: [['r-f', 'Base Camp', 'Everything the rest stands on.', '🧱', ['f']]],
-  quadratics: [
-    [
-      'r-q-basics',
-      'The Shallows',
-      'Meet them, name them, solve the easy ones.',
-      '🌊',
-      ['q1', 'q2', 'q3'],
-    ],
-    [
-      'r-q-formula',
-      'The Great Engine',
-      'The formula and the discriminant.',
-      '⚙️',
-      ['q4', 'q5', 'q6', 'q7'],
-    ],
-    [
-      'r-q-methods',
-      'The Side Roads',
-      'Graphs, Vieta, completing the square.',
-      '🧭',
-      ['q8', 'q9', 'q10'],
-    ],
-    [
-      'r-q-system',
-      'The Real StarSystem',
-      'Vertices, shapes and applications.',
-      '🌉',
-      ['q11', 'q12'],
-    ],
-    ['r-q-mastery', 'The Proving Ground', 'Everything, mixed.', '🎯', ['q13']],
-    ['r-q-summit', 'The Summit', 'Hard problems, olympiad, exams.', '🏔️', ['q14', 'q15', 'q16']],
-  ],
-};
-
-export const PLANETS: Planet[] = Object.entries(PLANET_SPECS).flatMap(([systemId, specs]) =>
-  specs.map(([id, title, blurb, glyph, sectionIds], i) => ({
-    id,
-    systemId,
-    title,
-    blurb,
-    glyph,
-    sectionIds,
-    order: i + 1,
-  })),
-);
-
-export const getPlanet = (id: string) => PLANETS.find((r) => r.id === id);
-
-export const planetsOfSystem = (systemId: string) =>
-  PLANETS.filter((r) => r.systemId === systemId).sort((a, b) => a.order - b.order);
-
-export const levelsOfPlanet = (planet: Planet) =>
-  planet.sectionIds.flatMap((id) => levelsOfSection(id));
-
-/** Route back to the map planet containing a section — used by lesson back-links. */
-export const planetOfSection = (sectionId: string): string | undefined => {
-  const planet = PLANETS.find((r) => r.sectionIds.includes(sectionId));
-  return planet ? `/planet/${planet.id}` : undefined;
-};
-
 /** [id, title, subtitle, kind?] — kind defaults per section below. */
 type LevelSpec = [string, string, string, LevelKind?];
 
@@ -293,15 +214,24 @@ const LEVEL_SPECS: Record<string, { defaultKind: LevelKind; levels: LevelSpec[] 
   },
 
   // --- Stage 8: Graphical Meaning ------------------------------------------
+  // Twelve levels, ordered so the plane itself is learned before anything is
+  // read off it: plot → recognise → roots → vertex → symmetry → shape → count →
+  // sketch, with two games at the end that are drills, not decoration.
   q8: {
     defaultKind: 'learn',
     levels: [
-      ['q8-1', 'Quadratic Functions', 'From equation to graph.'],
-      ['q8-2', 'Parabolas', 'The shape and its properties.'],
-      ['q8-3', 'Roots as x-Intercepts', 'Where the curve meets the axis.'],
-      ['q8-4', 'Solve Graphically', 'Reading answers off a picture.', 'practice'],
-      ['q8-5', 'Changing Coefficients', 'What a, b and c do to the curve.'],
-      ['q8-6', 'Graphical Discriminant', 'Seeing the number of roots.'],
+      ['q8-1', 'Points on the Plane', 'Reading and plotting coordinates.'],
+      ['q8-2', 'Quadratic Functions', 'From equation to curve.'],
+      ['q8-3', 'Parabolas', 'The shape and which way it opens.'],
+      ['q8-4', 'Roots as x-Intercepts', 'Where the curve meets the axis.'],
+      ['q8-5', 'Solve Graphically', 'Reading answers off a picture.', 'practice'],
+      ['q8-6', 'The Vertex', 'The turning point of the curve.'],
+      ['q8-7', 'Axis of Symmetry', 'The mirror line at x = −b/2a.'],
+      ['q8-8', 'Changing Coefficients', 'What a, b and c do to the curve.'],
+      ['q8-9', 'Graphical Discriminant', 'Seeing the number of roots.'],
+      ['q8-10', 'Sketching a Parabola', 'Roots, vertex, direction — then draw.', 'practice'],
+      ['q8-11', 'Root Hunt', 'Race to tap every x-intercept.', 'game'],
+      ['q8-12', 'Trajectory', 'Shape a curve through the targets.', 'game'],
     ],
   },
 
@@ -432,6 +362,9 @@ export const LEVELS: Level[] = Object.entries(LEVEL_SPECS).flatMap(
 
 export const getSystem = (id: string) => SYSTEMS.find((w) => w.id === id);
 export const getSection = (id: string) => SECTIONS.find((s) => s.id === id);
+
+/** Route to a section's lesson list — the third and deepest browse level. */
+export const sectionRoute = (sectionId: string) => `/section/${sectionId}`;
 export const getLevel = (id: string) => LEVELS.find((l) => l.id === id);
 
 export const sectionsOfSystem = (systemId: string) =>

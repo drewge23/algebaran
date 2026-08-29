@@ -1,4 +1,6 @@
+import { WORK_NAMES } from '@/content/work-names';
 import { usePlayerStore } from '@/store/playerStore';
+import { buzz } from '@/lib/haptics';
 
 type Key =
   | { t: 'ins'; label: string; value: string; math?: boolean; keyId?: string }
@@ -13,6 +15,14 @@ const ins = (value: string, math = false, keyId?: string): Key => ({
   math,
   keyId,
 });
+
+/**
+ * The names a worked solution is built from. Shown only for steps where the
+ * learner writes the left-hand side too — the pad has no letters otherwise, and
+ * a worksheet you cannot label is not a worksheet. These are never locked: they
+ * are how the answer is written, not a shortcut for writing it.
+ */
+const NAME_ROW: Key[] = WORK_NAMES.map((name) => ins(name, true));
 
 /**
  * Layout mirrors the design's calculator pad. Keys carrying a `keyId` are
@@ -65,6 +75,7 @@ export function EquationKeyboard({
   onSubmit,
   onLockedPress,
   canSubmit = false,
+  names = false,
 }: {
   onInsert: (value: string) => void;
   onBackspace: () => void;
@@ -72,13 +83,15 @@ export function EquationKeyboard({
   onSubmit: () => void;
   onLockedPress?: (keyId: string) => void;
   canSubmit?: boolean;
+  /** Offer the a / b / c / D / x₁ / x₂ row, for steps that ask for names. */
+  names?: boolean;
 }) {
   const unlockedKeyIds = usePlayerStore((s) => s.unlockedKeyIds);
   const isLocked = (k: Key) => k.t === 'ins' && !!k.keyId && !unlockedKeyIds.includes(k.keyId);
 
   const press = (k: Key) => {
     // A short tap pulse makes the on-screen pad feel physical on phones.
-    navigator.vibrate?.(8);
+    buzz(8);
     switch (k.t) {
       case 'back':
         return onBackspace();
@@ -94,7 +107,7 @@ export function EquationKeyboard({
 
   return (
     <div className="kb">
-      {ROWS.map((row, r) => (
+      {(names ? [NAME_ROW, ...ROWS] : ROWS).map((row, r) => (
         <div className="kb__row" key={r}>
           {row.map((k, c) => {
             const locked = isLocked(k);

@@ -2,17 +2,22 @@ import { useEffect, useRef, useState } from 'react';
 import { HashRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import { BottomNav } from '@/components/BottomNav';
+import { SpaceBackdrop } from '@/components/SpaceBackdrop';
+import { SvgFilters } from '@/components/SvgFilters';
 import { Achievements } from '@/routes/Achievements';
+import { Arcade } from '@/routes/Arcade';
 import { BeatTheClock } from '@/routes/BeatTheClock';
 import { Collect } from '@/routes/Collect';
 import { Duel } from '@/routes/Duel';
+import { GraphGameRoute } from '@/routes/GraphGame';
 import { LessonRoute } from '@/routes/Lesson';
-import { PlanetScreen } from '@/routes/PlanetScreen';
+import { SectionScreen } from '@/routes/SectionScreen';
 import { SystemScreen } from '@/routes/SystemScreen';
 import { Systems } from '@/routes/Systems';
 import { Profile } from '@/routes/Profile';
 import { MissionRoute, SystemWorkshop, Workshop } from '@/routes/Workshop';
 import { Quests } from '@/routes/Quests';
+import { Settings } from '@/routes/Settings';
 import { Welcome } from '@/routes/Welcome';
 import { bindStoresToAccount } from '@/store/accountScope';
 import { useAuthStore } from '@/store/authStore';
@@ -26,6 +31,9 @@ import { useQuestStore } from '@/store/questStore';
 export function App() {
   return (
     <HashRouter>
+      {/* Outside the router so the loop never restarts on navigation. */}
+      <SpaceBackdrop />
+      <SvgFilters />
       <AuthGate />
     </HashRouter>
   );
@@ -102,15 +110,18 @@ function AuthGate() {
       <Routes>
         <Route path="/" element={<Systems />} />
         <Route path="/system/:systemId" element={<SystemScreen />} />
-        <Route path="/planet/:planetId" element={<PlanetScreen />} />
+        <Route path="/section/:sectionId" element={<SectionScreen />} />
         <Route path="/projects" element={<Workshop />} />
         <Route path="/projects/system/:systemId" element={<SystemWorkshop />} />
         <Route path="/projects/mission/:missionId" element={<MissionRoute />} />
         <Route path="/quests" element={<Quests />} />
         <Route path="/collect" element={<Collect />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/awards" element={<Achievements />} />
         <Route path="/lesson/:id" element={<LessonRoute />} />
+        <Route path="/arcade" element={<Arcade />} />
+        <Route path="/graph-game/:gameId" element={<GraphGameRoute />} />
         <Route path="/beat-the-clock" element={<BeatTheClock />} />
         <Route path="/duel" element={<Duel />} />
         <Route path="*" element={<Navigate to="/" replace />} />

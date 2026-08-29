@@ -6,6 +6,24 @@ import { SHOP_ITEMS } from '@/content/shop';
 import { randomInt } from '@/lib/random';
 import { usePlayerStore } from '@/store/playerStore';
 import type { ShopItem } from '@/types/content';
+import { buzz } from '@/lib/haptics';
+
+type Category = 'featured' | 'boosters' | 'customization';
+
+/**
+ * The shop: a game economy, not a storefront.
+ *
+ * Everything costs π that was earned in the app — there is no real-money tier,
+ * deliberately (see the soft-currency note in CLAUDE.md; the audience is
+ * schoolchildren). It is styled to sit *below* learning in the hierarchy: plain
+ * rows, no promotion, nothing that pulls harder than a lesson does.
+ */
+const CATEGORY_OF: Record<ShopItem['kind'], Category> = {
+  avatar: 'customization',
+  collectable: 'customization',
+  consumable: 'boosters',
+  key: 'boosters',
+};
 
 export function Collect() {
   const { t } = useTranslation();
@@ -19,11 +37,16 @@ export function Collect() {
   const equipAvatar = usePlayerStore((s) => s.equipAvatar);
   const unlockKey = usePlayerStore((s) => s.unlockKey);
 
+  const [tab, setTab] = useState<Category>('featured');
   const [flash, setFlash] = useState<string | null>(null);
+
+  const isOwned = (item: ShopItem) =>
+    ownedItemIds.includes(item.id) ||
+    (item.kind === 'key' && !!item.keyId && unlockedKeyIds.includes(item.keyId));
 
   const buy = (item: ShopItem) => {
     if (!purchaseItem(item.id)) return;
-    navigator.vibrate?.(12);
+    buzz(12);
     if (item.kind === 'consumable') {
       // Fortune cookie: a random π reward.
       const reward = randomInt(10, 200);
@@ -35,70 +58,85 @@ export function Collect() {
     }
   };
 
+  // Featured is what you could actually buy next, cheapest first — a useful
+  // shortlist rather than a marketing slot.
+  const items =
+    tab === 'featured'
+      ? SHOP_ITEMS.filter((i) => !isOwned(i))
+          .slice()
+          .sort((a, b) => a.cost - b.cost)
+          .slice(0, 4)
+      : SHOP_ITEMS.filter((i) => CATEGORY_OF[i.kind] === tab);
+
   return (
     <div className="screen screen--scroll">
       <div className="topbar">
-        <div className="grow">
-          <h1 className="screen__title" style={{ fontSize: 26 }}>
-            {t('shop.title')}
-          </h1>
-        </div>
-        <PiPill />
+        <h1 className="screen__title grow" style={{ fontSize: 26 }}>
+          {t('shop.title')}
+        </h1>
+        <PiPill compact />
       </div>
-      <p className="screen__sub">{t('shop.subtitle')}</p>
 
-      {flash && (
-        <div className="pi-pill pop" style={{ alignSelf: 'flex-start', marginTop: 12 }}>
-          <span className="pi-pill__value">{flash}</span>
-        </div>
-      )}
+      <div className="tabs">
+        {(['featured', 'boosters', 'customization'] as const).map((id) => (
+          <button
+            type="button"
+            key={id}
+            className={`tab${tab === id ? ' tab--on' : ''}`}
+            onClick={() => setTab(id)}>
+            {t(`shop.tabs.${id}`)}
+          </button>
+        ))}
+      </div>
 
-      <div className="stack stack--3" style={{ marginTop: 16 }}>
-        {SHOP_ITEMS.map((item) => {
-          const isKeyOwned =
-            item.kind === 'key' && !!item.keyId && unlockedKeyIds.includes(item.keyId);
-          const owned = ownedItemIds.includes(item.id) || isKeyOwned;
+      {flash && <div className="shop-flash pop">{flash}</div>}
+
+      <div className="shop-grid">
+        {items.map((item) => {
+          const owned = isOwned(item);
           const equipped = equippedAvatarId === item.id;
           const affordable = pi >= item.cost;
 
           return (
-            <div className="tile" key={item.id}>
-              <div className="tile__glyph">{item.glyph}</div>
-              <div className="tile__grow">
-                <div className="tile__name">{item.name}</div>
-                <div className="tile__desc">{item.description}</div>
-                <div className="tile__meta">
-                  {item.cost} π
-                  {item.multiplier > 0 && ` · ${t('shop.incomeBonus', { value: item.multiplier })}`}
-                </div>
-              </div>
-              <div className="tile__action">
-                {owned && item.kind === 'avatar' ? (
-                  <button
-                    type="button"
-                    className={`chip-btn${equipped ? ' chip-btn--muted' : ''}`}
-                    disabled={equipped}
-                    onClick={() => equipAvatar(item.id)}>
-                    {equipped ? t('shop.equipped') : t('shop.equip')}
-                  </button>
-                ) : owned && item.kind !== 'consumable' ? (
-                  <button type="button" className="chip-btn chip-btn--good" disabled>
-                    ✓ {t('shop.owned')}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="chip-btn"
-                    disabled={!affordable}
-                    onClick={() => buy(item)}>
-                    {t('shop.buy')}
-                  </button>
+            <div className="shop-item" key={item.id}>
+              <span className="shop-item__glyph" aria-hidden="true">
+                {item.glyph}
+              </span>
+              <span className="shop-item__text">
+                <span className="shop-item__name">{item.name}</span>
+                <span className="shop-item__desc">{item.description}</span>
+                {item.multiplier > 0 && (
+                  <span className="shop-item__bonus">
+                    {t('shop.incomeBonus', { value: item.multiplier })}
+                  </span>
                 )}
-              </div>
+              </span>
+
+              {owned && item.kind === 'avatar' ? (
+                <button
+                  type="button"
+                  className="shop-action"
+                  disabled={equipped}
+                  onClick={() => equipAvatar(item.id)}>
+                  {equipped ? t('shop.equipped') : t('shop.equip')}
+                </button>
+              ) : owned && item.kind !== 'consumable' ? (
+                <span className="shop-owned">✓ {t('shop.owned')}</span>
+              ) : (
+                <button
+                  type="button"
+                  className="shop-action shop-action--buy"
+                  disabled={!affordable}
+                  onClick={() => buy(item)}>
+                  <span className="shop-price">{item.cost} π</span>
+                </button>
+              )}
             </div>
           );
         })}
       </div>
+
+      {items.length === 0 && <p className="screen__sub">{t('shop.empty')}</p>}
     </div>
   );
 }

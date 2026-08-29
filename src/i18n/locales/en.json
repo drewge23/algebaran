@@ -10,8 +10,8 @@
     "currency": "π"
   },
   "tabs": {
-    "lessons": "Lessons",
-    "collect": "Collect",
+    "lessons": "Worlds",
+    "collect": "Shop",
     "profile": "Profile",
     "awards": "Awards",
     "projects": "Projects",
@@ -35,7 +35,6 @@
     "solve": "Solve",
     "learn": "Learn",
     "reward": "Reward",
-    "needHint": "Need a hint?",
     "theory": "Theory",
     "check": "Check answer",
     "completeDemo": "Complete lesson (demo)",
@@ -43,14 +42,22 @@
     "earned": "+{{pi}} π · +{{xp}} XP",
     "replay": "Reviewed — nice refresher!",
     "finish": "Finish",
-    "typeHere": "Tap the keys to build your answer",
     "correct": "Correct!",
-    "correctAnswerIs": "Answer: {{answer}}",
+    "solutionIs": "Not quite — here is the solution.",
+    "lineDone": "Line done",
     "keyLocked": "Unlock this key in Collect",
     "comingSoon": "The interactive problems for this lesson arrive in a later build.",
-    "encourageStart": "Take your time. Precision beats speed.",
     "encourageRight": "Precisely! I knew you had it.",
-    "encourageWrong": "Don't worry. I've made considerably worse mistakes."
+    "resultPerfect": "Great work!",
+    "resultGood": "Well done!",
+    "resultSub": "That one is behind you.",
+    "resultSubPerfect": "Not a single mistake.",
+    "rewardPi": "Pi-astres",
+    "rewardXp": "XP",
+    "rewardStreak": "Day streak",
+    "backToLevels": "Back to levels",
+    "stars": "{{count}} of 3 stars",
+    "nextLevel": "Next level"
   },
   "hints": {
     "title": "Hints",
@@ -69,10 +76,14 @@
     "xp": "XP",
     "viewAchievements": "Achievements",
     "language": "Language",
-    "nextLevel": "{{percent}}% to level {{level}}"
+    "nextLevel": "{{percent}}% to level {{level}}",
+    "levelShort": "LEVEL {{level}}",
+    "badges": "Badges",
+    "view": "View",
+    "recent": "Recent achievements"
   },
   "shop": {
-    "title": "Collect",
+    "title": "Shop",
     "subtitle": "Spend π on companions, keys and luck.",
     "balance": "You have {{pi}} π",
     "buy": "Buy",
@@ -81,7 +92,13 @@
     "equipped": "Equipped",
     "cantAfford": "Not enough π",
     "incomeBonus": "+{{value}}× income",
-    "unlocked": "Unlocked!"
+    "unlocked": "Unlocked!",
+    "tabs": {
+      "featured": "Featured",
+      "boosters": "Boosters",
+      "customization": "Customization"
+    },
+    "empty": "Nothing here yet."
   },
   "achievements": {
     "title": "Achievements",
@@ -155,13 +172,29 @@
       "duel_won_10": "Win 10 duels",
       "perfect_1": "Finish a lesson with 3 stars",
       "perfect_5": "Finish 5 lessons with 3 stars",
-      "project_4": "Complete a project"
-    }
+      "project_4": "Complete a project",
+      "graph_5": "Win 5 graph rounds",
+      "graph_40": "Win 40 graph rounds"
+    },
+    "ready": "Rewards ready",
+    "claimAll": "Claim {{pi}} π",
+    "claimed": "Claimed"
   },
   "duel": {
     "title": "Duel",
     "vs": "VS",
     "you": "You",
+    "explorer": "Explorer",
+    "opponent": "Opponent",
+    "matchFound": "Match found",
+    "matchupLabel": "You versus Professorson",
+    "ratingMatch": "rating match",
+    "questions": "{{count}} questions",
+    "ratingAtStake": "rating at stake",
+    "round": "Round",
+    "winLabel": "Victory recorded",
+    "lossLabel": "Match complete",
+    "drawLabel": "Even match",
     "taunt": "No other explorers online, so you'll have to beat me. Good luck with that.",
     "rulesTitle": "{{count}} questions, head to head",
     "rules": "You both answer the same questions. Most correct wins; if you tie, the faster explorer takes it. Winner gets {{pi}} π and rating.",
@@ -171,7 +204,8 @@
     "drew": "A draw",
     "again": "Rematch",
     "mascotWon": "Ha! Experience still counts for something.",
-    "mascotLost": "Well. I shall need to practise."
+    "mascotLost": "Well. I shall need to practise.",
+    "sub": "Head to head, and your rating on the line"
   },
   "sectionKind": {
     "practice": "Practice",
@@ -182,27 +216,64 @@
     "exam": "Exam"
   },
   "levels": {
-    "comingSoon": "not written yet"
+    "comingSoon": "not written yet",
+    "state": {
+      "done": "completed",
+      "current": "up next",
+      "upcoming": "coming up",
+      "locked": "locked"
+    }
   },
   "systems": {
-    "eyebrow": "Choose a world",
+    "eyebrow": "Choose a system",
     "swipeHint": "Swipe to explore",
     "progress": "{{done}} / {{total}} levels",
     "enter": "Enter",
     "continue": "Continue",
-    "mascot": "Each world is a whole branch of mathematics. Start where you are comfortable.",
-    "sectionsMascot": "Pick a landmark. The main road runs straight through — the rest is yours to explore."
+    "mascot": "Each system is a whole branch of mathematics. Start where you are comfortable.",
+    "sectionsMascot": "Pick a landmark. The main road runs straight through — the rest is yours to explore.",
+    "arcade": "Arcade",
+    "open": "Open {{title}}",
+    "prev": "Previous world",
+    "next": "Next world",
+    "percent": "{{pct}}%"
   },
   "workshop": {
     "eyebrow": "Workshop",
     "currentMission": "Current mission",
-    "systems": "Ship systems",
+    "systems": "Build stages",
     "start": "Start mission",
     "locked": "LOCKED",
-    "assembled": "{{done}} of {{total}} systems installed",
-    "ready": "ALL SYSTEMS GO",
+    "assembled": "{{done}} of {{total}} stages built",
+    "ready": "READY FOR LAUNCH",
     "allDone": "She is finished. Every number checked, every bolt yours. Shall we?",
     "lockedBody": "Finish {{list}} first — this bolts onto it.",
-    "missions": "{{done}} of {{total}} missions flown"
+    "missions": "{{done}} of {{total}} missions flown",
+    "next": "Next mission"
+  },
+  "graph": {
+    "clear": "Clear",
+    "tapHint_one": "Tap the plane to place your point.",
+    "tapHint_other": "Tap the plane to place {{count}} points.",
+    "sliderHint": "Move the sliders until the curve fits.",
+    "yourAnswer": "Your point",
+    "theAnswer": "The answer",
+    "arcade": "Arcade",
+    "arcadeSub": "Short drills that pay every run",
+    "arcadeMascot": "Lessons pay once. These pay every time — come and sharpen up.",
+    "rules": "{{rounds}} rounds, {{seconds}} seconds",
+    "payout": "Every correct round pays {{pi}} π. The clock runs for the whole set, so keep moving.",
+    "meta": "{{rounds}} rounds · {{seconds}}s",
+    "runOver": "Run complete!",
+    "open": "Play",
+    "round": "Round {{index}} of {{total}}"
+  },
+  "settings": {
+    "title": "Settings",
+    "haptics": "Haptics",
+    "appearance": "Appearance",
+    "dark": "Dark",
+    "about": "About",
+    "version": "Algebaran v{{version}}"
   }
 }

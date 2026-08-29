@@ -1,0 +1,68 @@
+{
+  "schema": "algebaran.screen-assets.v1",
+  "screen": {
+    "id": "projects-workshop",
+    "title": "Projects — REACH ALGEbaran"
+  },
+  "assetStyle": {
+    "visualLanguage": "Algebaran cosmic workshop; warm orange rocket illumination against deep navy; clean illustrated game asset; no UI text in the image.",
+    "references": ["src/content/art.ts", "src/styles/index.css", "assets/professor"]
+  },
+  "assets": [
+    {
+      "id": "rocket-stage-0",
+      "role": "hero",
+      "destination": "assets/project/step_0.png",
+      "source": "assets/project/step_0.png",
+      "prompt": "A crisp illustrated game asset of an incomplete friendly exploration rocket in a dark cosmic workshop, isolated on a transparent background, front three-quarter view, warm orange metal and violet accents, no text, no frame, no UI.",
+      "size": "1024x1024",
+      "quality": "medium",
+      "transparent": true,
+      "status": "approved"
+    },
+    {
+      "id": "rocket-stage-1",
+      "role": "hero",
+      "destination": "assets/project/step_1.png",
+      "source": "assets/project/step_1.png",
+      "prompt": "The same friendly exploration rocket, now with its hull visibly assembled, isolated on transparent background. Preserve camera angle, silhouette, orange metal and violet accents exactly; no text or UI.",
+      "size": "1024x1024",
+      "quality": "medium",
+      "transparent": true,
+      "status": "approved"
+    },
+    {
+      "id": "rocket-stage-2",
+      "role": "hero",
+      "destination": "assets/project/step_2.png",
+      "source": "assets/project/step_2.png",
+      "prompt": "The same friendly exploration rocket, hull and fuel systems visibly installed, isolated on transparent background. Preserve camera angle, silhouette, orange metal and violet accents exactly; no text or UI.",
+      "size": "1024x1024",
+      "quality": "medium",
+      "transparent": true,
+      "status": "approved"
+    },
+    {
+      "id": "rocket-stage-3",
+      "role": "hero",
+      "destination": "assets/project/step_3.png",
+      "source": "assets/project/step_3.png",
+      "prompt": "The same friendly exploration rocket, hull, fuel and engine systems visibly installed, isolated on transparent background. Preserve camera angle, silhouette, orange metal and violet accents exactly; no text or UI.",
+      "size": "1024x1024",
+      "quality": "medium",
+      "transparent": true,
+      "status": "approved"
+    },
+    {
+      "id": "rocket-stage-4",
+      "role": "hero",
+      "destination": "assets/project/step_4.png",
+      "source": "assets/project/step_4.png",
+      "prompt": "The complete friendly exploration rocket ready to launch to Algebaran, isolated on transparent background. Preserve camera angle, silhouette, orange metal and violet accents exactly; no text or UI.",
+      "size": "1024x1024",
+      "quality": "medium",
+      "transparent": true,
+      "status": "approved"
+    }
+  ]
+}

@@ -10,7 +10,17 @@ import { VitePWA } from 'vite-plugin-pwa';
  */
 const base = process.env.VITE_BASE ?? '/';
 
+const APP_VERSION = process.env.npm_package_version ?? '0.2.0';
+
 export default defineConfig({
+  server: {
+    // Honour the port the harness assigns. Vite does not read PORT on its own,
+    // and nothing here is tied to a fixed origin — no OAuth callback, no
+    // webhook — so any free port will do.
+    port: process.env.PORT ? Number(process.env.PORT) : undefined,
+  },
+  // Surfaced on the Settings > About row.
+  define: { __APP_VERSION__: JSON.stringify(APP_VERSION) },
   base,
   build: {
     // Vite 8 minifies CSS with lightningcss, a native module whose per-platform
@@ -52,7 +62,7 @@ export default defineConfig({
       },
       workbox: {
         // The whole app is static; precache it so it works offline once installed.
-        globPatterns: ['**/*.{js,css,html,png,webp,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,png,webp,svg,woff2,mp4}'],
       },
     }),
   ],

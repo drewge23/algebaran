@@ -3,7 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { ACHIEVEMENTS, type AchievementStats } from '@/content/achievements';
 import { levelForXp } from '@/lib/economy';
 import { usePlayerStore } from '@/store/playerStore';
-import { selectCompletedCount, useProgressStore } from '@/store/progressStore';
+import {
+  selectCompletedCount,
+  selectProjectComplete,
+  useProgressStore,
+} from '@/store/progressStore';
 
 export function Achievements() {
   const { t } = useTranslation();
@@ -12,12 +16,14 @@ export function Achievements() {
   const xp = usePlayerStore((s) => s.xp);
   const streakCount = usePlayerStore((s) => s.streakCount);
   const lessonsCompleted = useProgressStore(selectCompletedCount);
+  const projectComplete = useProgressStore(selectProjectComplete);
 
   const stats: AchievementStats = {
     lessonsCompleted,
     streakCount,
     level: levelForXp(xp),
     pi,
+    projectComplete,
   };
 
   const unlocked = ACHIEVEMENTS.filter((a) => a.isUnlocked(stats));

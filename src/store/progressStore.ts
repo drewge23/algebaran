@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { ALL_MISSIONS } from '@/content/rocket';
+
 import { spineOfSystem, systemIdOfLevel } from '@/content/curriculum';
 import type { Level } from '@/types/curriculum';
 
@@ -116,3 +118,10 @@ export function tally(
 ): { done: number; total: number } {
   return { done: levels.filter((l) => completed[l.id]).length, total: levels.length };
 }
+
+/**
+ * Every mission of the workshop project finished. Lives here rather than in the
+ * workshop screen because the achievements list needs it too.
+ */
+export const selectProjectComplete = (s: { projects: Record<string, LessonRecord> }) =>
+  ALL_MISSIONS.length > 0 && ALL_MISSIONS.every((m) => Boolean(s.projects[m.id]));

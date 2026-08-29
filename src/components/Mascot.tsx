@@ -1,23 +1,35 @@
-import excited from '@/assets/professorson/excited.webp';
-import happy from '@/assets/professorson/happy.webp';
-import pointing from '@/assets/professorson/pointing.webp';
-import proud from '@/assets/professorson/proud.webp';
-import sleepy from '@/assets/professorson/sleepy.webp';
-import thinking from '@/assets/professorson/thinking.webp';
-import wink from '@/assets/professorson/wink.webp';
+import content from '@/assets/professorson/content.webp';
+import full from '@/assets/professorson/full.webp';
+import glad from '@/assets/professorson/glad.webp';
+import inspired from '@/assets/professorson/inspired.webp';
+import inspired2 from '@/assets/professorson/inspired_2.webp';
+import meditating from '@/assets/professorson/meditating.webp';
+import surprised from '@/assets/professorson/surprised.webp';
 
 /** Professorson's moods, picked to match what just happened on screen. */
 export type Mood = 'happy' | 'thinking' | 'excited' | 'proud' | 'wink' | 'sleepy' | 'pointing';
 
+/**
+ * Mood → art. The drawings are named for the expression, the moods for the
+ * moment they belong to, so the mapping lives here rather than in the filenames.
+ * `wink` and `pointing` share the glasses-adjust pose — they never appear on the
+ * same screen, and a knowing look reads correctly for both.
+ */
 const ART: Record<Mood, string> = {
-  happy,
-  thinking,
-  excited,
-  proud,
-  wink,
-  sleepy,
-  pointing,
+  happy: content,
+  proud: glad,
+  excited: surprised,
+  thinking: inspired,
+  wink: inspired2,
+  pointing: inspired2,
+  sleepy: meditating,
 };
+
+/** The full-body drawing, for the places that have room for a hero. */
+export const PROFESSORSON_FULL = full;
+
+/** A head shot, for circular chips too small to read a whole figure. */
+export const PROFESSORSON_AVATAR = content;
 
 export function Mascot({ mood = 'happy', small = false }: { mood?: Mood; small?: boolean }) {
   return (

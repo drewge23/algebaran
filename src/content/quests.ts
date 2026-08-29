@@ -10,6 +10,7 @@ export type QuestMetric =
   | 'duelsPlayed'
   | 'clockRounds'
   | 'clockCorrect'
+  | 'graphRounds'
   | 'perfectLessons'
   | 'projectSteps';
 
@@ -40,6 +41,7 @@ export const DAILY_POOL: QuestDef[] = [
   { id: 'd-duel-1', metric: 'duelsPlayed', target: 1, reward: 15, labelKey: 'duel_played_1' },
   { id: 'd-duel-win-1', metric: 'duelsWon', target: 1, reward: 30, labelKey: 'duel_won_1' },
   { id: 'd-perfect-1', metric: 'perfectLessons', target: 1, reward: 25, labelKey: 'perfect_1' },
+  { id: 'd-graph-5', metric: 'graphRounds', target: 5, reward: 25, labelKey: 'graph_5' },
 ];
 
 /** Pool for monthly quests — bigger commitments, bigger payouts. */
@@ -50,6 +52,7 @@ export const MONTHLY_POOL: QuestDef[] = [
   { id: 'm-clock-15', metric: 'clockRounds', target: 15, reward: 150, labelKey: 'clock_15' },
   { id: 'm-perfect-5', metric: 'perfectLessons', target: 5, reward: 180, labelKey: 'perfect_5' },
   { id: 'm-project-4', metric: 'projectSteps', target: 4, reward: 200, labelKey: 'project_4' },
+  { id: 'm-graph-40', metric: 'graphRounds', target: 40, reward: 180, labelKey: 'graph_40' },
 ];
 
 export const DAILY_COUNT = 3;

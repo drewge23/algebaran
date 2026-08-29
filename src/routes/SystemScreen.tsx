@@ -2,17 +2,17 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { MascotSays } from '@/components/Mascot';
+import { ChevronLeft } from 'lucide-react';
+
 import { PiPill } from '@/components/PiPill';
-import { PlanetMap } from '@/components/PlanetMap';
-import { getSystem, levelsOfSystem, planetsOfSystem } from '@/content/curriculum';
+import { SectionMap } from '@/components/SectionMap';
+import { getSystem, levelsOfSystem, sectionRoute, sectionsOfSystem } from '@/content/curriculum';
 import { useNavMemory } from '@/store/navStore';
 import { tally, useProgressStore } from '@/store/progressStore';
 
 /**
- * One system, drawn as a map of glowing islands. Each island is a planet — a
- * cluster of sections — so a system reads as a handful of landmarks rather than a
- * list of every section it contains.
+ * One world, drawn as a column of sections. Each seal opens that section's
+ * lessons, so the whole course is three steps deep: world → section → lessons.
  */
 export function SystemScreen() {
   const { t } = useTranslation();
@@ -25,7 +25,7 @@ export function SystemScreen() {
 
   // Remember the system so the next visit opens here instead of the selector.
   useEffect(() => {
-    if (system) remember({ systemId: system.id, planetId: null });
+    if (system) remember({ systemId: system.id, sectionId: null });
   }, [system, remember]);
 
   if (!system) {
@@ -41,12 +41,12 @@ export function SystemScreen() {
     );
   }
 
-  const planets = planetsOfSystem(system.id);
+  const sections = sectionsOfSystem(system.id);
   const { done, total } = tally(completed, levelsOfSystem(system.id));
 
   const goUp = () => {
     // Explicit back is the one way out to the selector, so forget this system.
-    remember({ systemId: null, planetId: null });
+    remember({ systemId: null, sectionId: null });
     navigate('/');
   };
 
@@ -54,27 +54,25 @@ export function SystemScreen() {
     <div className="screen screen--scroll">
       <div className="topbar">
         <button type="button" className="icon-btn" aria-label={t('common.back')} onClick={goUp}>
-          ←
+          <ChevronLeft size={20} aria-hidden="true" />
         </button>
         <div className="grow">
           <div className="topbar__eyebrow">{system.title}</div>
           <div className="topbar__label">{t('systems.progress', { done, total })}</div>
         </div>
-        <PiPill />
+        <PiPill compact />
       </div>
 
       <div className="bar" style={{ marginTop: 10 }}>
         <div className="bar__fill" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
       </div>
 
-      <MascotSays mood="happy">{t('systems.sectionsMascot')}</MascotSays>
-
-      <PlanetMap
-        planets={planets}
+      <SectionMap
+        sections={sections}
         completed={completed}
-        onOpen={(planet) => {
-          remember({ systemId: system.id, planetId: planet.id });
-          navigate(`/planet/${planet.id}`);
+        onOpen={(section) => {
+          remember({ systemId: system.id, sectionId: section.id });
+          navigate(sectionRoute(section.id));
         }}
       />
     </div>

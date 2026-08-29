@@ -1,0 +1,24 @@
+{
+  "schema": "algebaran.screen-assets.v1",
+  "screen": {
+    "id": "duel",
+    "title": "Duel — Professorson Arena"
+  },
+  "assetStyle": {
+    "visualLanguage": "Algebaran dark cosmic game UI, restrained purple and gold, practical high-contrast interface; no text baked into images.",
+    "references": ["src/assets/professorson/full.webp", "src/styles/index.css"]
+  },
+  "assets": [
+    {
+      "id": "professorson-arena",
+      "role": "character-pose",
+      "destination": "assets/professor/duel.png",
+      "source": "src/assets/professorson/full.webp",
+      "prompt": "Professorson, a friendly elderly space-mathematics professor in a confident head-to-head stance, full body, three-quarter view, violet and warm gold accents, isolated on transparent background, no text, no frame, no UI.",
+      "size": "1024x1024",
+      "quality": "medium",
+      "transparent": true,
+      "status": "planned"
+    }
+  ]
+}

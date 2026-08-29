@@ -1,76 +1,136 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ChevronLeft, ChevronRight, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import { MascotSays } from '@/components/Mascot';
 import { PiPill } from '@/components/PiPill';
+import { FALLBACK_PLANET, SYSTEM_PLANET } from '@/content/art';
 import { SYSTEMS, levelsOfSystem } from '@/content/curriculum';
 import { tally, useProgressStore } from '@/store/progressStore';
 
 /**
- * The system selector — the app's front door.
+ * The front door: one world at a time, filling the screen.
  *
- * There is deliberately no separate "galaxy overview": you land inside a system
- * and swipe sideways between them. CSS scroll-snap does the paging, so it stays
- * a plain scroll container that works with touch, trackpad and keyboard alike.
+ * The planet is the whole design — no card around it, no panel behind it — so
+ * everything else is deliberately quiet: a π chip, a title, a percentage, and
+ * the dots that say how many worlds there are. Paging is a scroll-snap
+ * container rather than a carousel library, which keeps swipe, trackpad,
+ * keyboard and the arrow buttons all running through the same one scroll
+ * position.
  */
 export function Systems() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const completed = useProgressStore((s) => s.completed);
   const trackRef = useRef<HTMLDivElement>(null);
+  const [index, setIndex] = useState(0);
+
+  const active = SYSTEMS[index] ?? SYSTEMS[0];
+  const { done, total } = tally(completed, levelsOfSystem(active.id));
+  const pct = total ? Math.round((done / total) * 100) : 0;
+
+  /** The world nearest the middle of the viewport is the one being shown. */
+  const syncIndex = () => {
+    const track = trackRef.current;
+    if (!track) return;
+    const middle = track.scrollLeft + track.clientWidth / 2;
+    let nearest = 0;
+    let smallest = Infinity;
+    Array.from(track.children).forEach((child, i) => {
+      const el = child as HTMLElement;
+      const distance = Math.abs(el.offsetLeft + el.offsetWidth / 2 - middle);
+      if (distance < smallest) {
+        smallest = distance;
+        nearest = i;
+      }
+    });
+    setIndex(nearest);
+  };
+
+  const scrollTo = (target: number) => {
+    const track = trackRef.current;
+    const el = track?.children[target] as HTMLElement | undefined;
+    if (!track || !el) return;
+    track.scrollTo({
+      left: el.offsetLeft - (track.clientWidth - el.offsetWidth) / 2,
+      behavior: 'smooth',
+    });
+  };
 
   return (
-    <div className="screen screen--scroll" style={{ paddingInline: 0 }}>
-      <div className="topbar" style={{ paddingInline: 'var(--space-4)' }}>
-        <div className="grow">
-          <div className="topbar__eyebrow">{t('systems.eyebrow')}</div>
-          <div className="topbar__label">{t('systems.swipeHint')}</div>
-        </div>
-        <PiPill />
-      </div>
+    <div className="worlds">
+      <header className="worlds__top">
+        <PiPill compact />
+      </header>
 
-      <div className="system-track" ref={trackRef}>
-        {SYSTEMS.map((system) => {
-          const levels = levelsOfSystem(system.id);
-          const { done, total } = tally(completed, levels);
-          const pct = total ? (done / total) * 100 : 0;
+      <div className="worlds__stage">
+        <button
+          type="button"
+          className="worlds__arrow worlds__arrow--prev"
+          aria-label={t('systems.prev')}
+          disabled={index === 0}
+          onClick={() => scrollTo(index - 1)}>
+          <ChevronLeft size={22} aria-hidden="true" />
+        </button>
 
-          return (
-            <section
-              className={`system${system.available ? '' : ' system--locked'}`}
+        <div className="worlds__track" ref={trackRef} onScroll={syncIndex}>
+          {SYSTEMS.map((system, i) => (
+            <button
+              type="button"
               key={system.id}
-              aria-label={system.title}>
-              <div className="system__planet" aria-hidden="true">
-                {system.available ? system.glyph : '🔒'}
-              </div>
+              className={[
+                'worlds__planet',
+                i === index ? 'worlds__planet--active' : '',
+                system.available ? '' : 'worlds__planet--locked',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              aria-label={t('systems.open', { title: system.title })}
+              aria-disabled={!system.available}
+              onClick={() => system.available && navigate(`/system/${system.id}`)}>
+              <img src={SYSTEM_PLANET[system.id] ?? FALLBACK_PLANET} alt="" draggable={false} />
+              {!system.available && <Lock className="worlds__lock" size={38} aria-hidden="true" />}
+            </button>
+          ))}
+        </div>
 
-              <h1 className="system__title">{system.title}</h1>
-              <p className="system__blurb">{system.blurb}</p>
-
-              {system.available ? (
-                <>
-                  <div className="system__stats">{t('systems.progress', { done, total })}</div>
-                  <div className="bar" style={{ width: '78%' }}>
-                    <div className="bar__fill" style={{ width: `${pct}%` }} />
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn--primary system__cta"
-                    onClick={() => navigate(`/system/${system.id}`)}>
-                    {done > 0 ? t('systems.continue') : t('systems.enter')} →
-                  </button>
-                </>
-              ) : (
-                <div className="system__locked-note">{system.unlockNote}</div>
-              )}
-            </section>
-          );
-        })}
+        <button
+          type="button"
+          className="worlds__arrow worlds__arrow--next"
+          aria-label={t('systems.next')}
+          disabled={index === SYSTEMS.length - 1}
+          onClick={() => scrollTo(index + 1)}>
+          <ChevronRight size={22} aria-hidden="true" />
+        </button>
       </div>
 
-      <div style={{ paddingInline: 'var(--space-4)' }}>
-        <MascotSays mood="pointing">{t('systems.mascot')}</MascotSays>
+      {/* Keyed by world so the text crossfades rather than swapping mid-swipe. */}
+      <div className="worlds__info" key={active.id}>
+        <h1 className="worlds__title">{active.title}</h1>
+        <p className="worlds__blurb">{active.available ? active.blurb : active.unlockNote}</p>
+
+        {active.available && (
+          <div className="worlds__progress">
+            <span className="worlds__pct">{t('systems.percent', { pct })}</span>
+            <span className="worlds__bar">
+              <span className="worlds__bar-fill" style={{ width: `${pct}%` }} />
+            </span>
+          </div>
+        )}
+      </div>
+
+      <div className="worlds__dots" role="tablist" aria-label={t('systems.eyebrow')}>
+        {SYSTEMS.map((system, i) => (
+          <button
+            type="button"
+            key={system.id}
+            role="tab"
+            aria-selected={i === index}
+            aria-label={system.title}
+            className={`worlds__dot${i === index ? ' worlds__dot--on' : ''}`}
+            onClick={() => scrollTo(i)}
+          />
+        ))}
       </div>
     </div>
   );

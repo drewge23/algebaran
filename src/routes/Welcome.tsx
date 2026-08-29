@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AVATAR_EMOJI, EmojiPicker } from '@/components/EmojiPicker';
-import { MascotSays } from '@/components/Mascot';
+import { MascotSays, PROFESSORSON_FULL } from '@/components/Mascot';
 import { MAX_NAME, useAuthStore } from '@/store/authStore';
 
 type Mode = 'choose' | 'register' | 'signIn';
@@ -19,6 +19,8 @@ export function Welcome() {
   return (
     <div className="screen screen--scroll">
       <div className="welcome-hero">
+        {/* The front door is the one screen with room for the whole drawing. */}
+        <img className="welcome-hero__art" src={PROFESSORSON_FULL} alt="" draggable={false} />
         <h1 className="screen__title">{t('common.appName')}</h1>
         <p className="screen__sub">{t('common.tagline')}</p>
       </div>

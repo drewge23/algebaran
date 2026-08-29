@@ -17,7 +17,7 @@ import { persistStorage } from './storage';
  */
 interface NavData {
   systemId: string | null;
-  planetId: string | null;
+  sectionId: string | null;
 }
 
 interface NavActions {
@@ -29,22 +29,25 @@ export const useNavMemory = create<NavData & NavActions>()(
   persist(
     (set) => ({
       systemId: null,
-      planetId: null,
+      sectionId: null,
       remember: (patch) => set(patch),
-      clear: () => set({ systemId: null, planetId: null }),
+      clear: () => set({ systemId: null, sectionId: null }),
     }),
     {
       name: 'algebaran-nav',
-      version: 1,
+      version: 2,
       storage: persistStorage,
-      partialize: (s): NavData => ({ systemId: s.systemId, planetId: s.planetId }),
+      // v1 remembered a `planetId`; that layer is gone, so drop it and land on
+      // the world instead of a route that no longer exists.
+      migrate: (persisted) => ({ ...(persisted as NavData), sectionId: null }),
+      partialize: (s): NavData => ({ systemId: s.systemId, sectionId: s.sectionId }),
     },
   ),
 );
 
 /** The deepest remembered route, or `null` to stay on the system selector. */
 export function rememberedPath(state: NavData): string | null {
-  if (state.planetId) return `/planet/${state.planetId}`;
+  if (state.sectionId) return `/section/${state.sectionId}`;
   if (state.systemId) return `/system/${state.systemId}`;
   return null;
 }

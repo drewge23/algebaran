@@ -6,6 +6,8 @@ export interface AchievementStats {
   streakCount: number;
   level: number;
   pi: number;
+  /** True once every mission of the workshop project is finished. */
+  projectComplete: boolean;
 }
 
 export interface AchievementDef extends Achievement {
@@ -47,5 +49,12 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     description: 'Hold 500 π at once.',
     glyph: '💫',
     isUnlocked: (s) => s.pi >= 500,
+  },
+  {
+    id: 'shipwright',
+    name: 'Shipwright',
+    description: 'Build REACH ALGEbaran and fly it home.',
+    glyph: '🚀',
+    isUnlocked: (s) => s.projectComplete,
   },
 ];
